@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Question Bank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8faff; user-select: none; -webkit-user-select: none; padding-top: 100px; padding-bottom: 120px; }
+        .we-purple { color: #7A2F8C; }
+        .bg-we-purple { background-color: #7A2F8C; }
+        
+        /* ضبط حجم اللوجوهات */
+        .logo-img {
+            height: 45px; /* ارتفاع مناسب جداً للشعارات */
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+        }
+
+        /* فاصل عمودي بين اللوجوهات (اختياري) */
+        .logo-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #e2e8f0;
+            margin: 0 4px;
+        }
+
+        .card { background: white; border-radius: 20px; border: 1px solid #eee; transition: 0.3s; position: relative; overflow: hidden; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .tf-btn { border: 2px solid #e2e8f0; transition: 0.2s; font-weight: 600; padding: 12px; border-radius: 12px; width: 100%; text-align: center; background: #f9fafb; cursor: pointer; }
+        .selected-true { background-color: #22c55e !important; color: white; border-color: #22c55e; }
+        .selected-false { background-color: #ef4444 !important; color: white; border-color: #ef4444; }
+        .mcq-selected { background-color: #f3e8ff !important; border-color: #7A2F8C !important; color: #7A2F8C; }
+        .correct-card { border: 2px solid #22c55e !important; background-color: #f0fdf4 !important; }
+        .wrong-card { border: 2px solid #ef4444 !important; background-color: #fef2f2 !important; }
+        .input-box { width: 100%; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px; outline: none; font-weight: 600; transition: 0.3s; }
+        .input-box:focus { border-color: #7A2F8C; box-shadow: 0 0 0 4px rgba(122, 47, 140, 0.1); }
+        .fixed-footer { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+    </style>
+</head>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<header class="fixed top-0 w-full h-[80px] z-50 bg-white/90 backdrop-blur-xl shadow-sm flex justify-between items-center px-8 border-b border-gray-100">
+    
+    <div class="flex items-center gap-4 lg:gap-5">
+        <img src="../Galaxy Academy for Development.png" alt="Galaxy Academy" class="logo-img">
+        <div class="logo-divider"></div>
+        <img src="../WE Schools for Applied Technology.png" alt="WE Schools" class="logo-img">
+        <div class="logo-divider"></div>
+        <img src="../pplied Technology.png" alt="Applied Technology" class="logo-img">
+        <div class="logo-divider"></div>
+        <img src="../Ministry.png" alt="Ministry of Education" class="logo-img">
+    </div>
+
+    <div class="flex items-center">
+        <a class="flex items-center gap-2 text-[#7A2F8C] font-bold hover:bg-purple-50 px-4 py-2 rounded-xl transition-all" href="../interactive_selection_flow/index.html">
+            <span class="material-symbols-outlined !text-[22px]">home</span>
+            <span class="hidden sm:inline">Home</span>
+        </a>
+    </div>
+</header>
+    <main class="max-w-3xl mx-auto p-6 mt-4">
+        <div id="quiz-container" class="space-y-6"></div>
+
+        <div class="mt-10 text-center" id="submit-area">
+            <button onclick="submitQuiz()" id="main-submit-btn" class="bg-we-purple text-white px-20 py-5 rounded-2xl font-extrabold text-xl hover:scale-105 transition-all shadow-xl active:scale-95">Finish & Submit</button>
+        </div>
+    </main>
+
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/90 hidden flex items-center justify-center z-[200] backdrop-blur-md">
+        <div class="bg-white p-10 rounded-[2.5rem] max-w-sm w-full text-center shadow-2xl">
+            <h2 class="text-2xl font-black text-slate-800">Quiz Finished!</h2>
+            <div id="final-score-percent" class="text-7xl font-black text-we-purple my-6">0%</div>
+            <div class="space-y-3">
+                <button onclick="nextRound()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition">Next 20 Questions ➔</button>
+                <button onclick="closeModal()" class="w-full bg-gray-100 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-200 transition">Review Answers</button>
+                <button onclick="location.reload()" class="w-full text-gray-400 py-2 text-sm font-bold hover:underline">Restart All</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="fixed bottom-0 w-full h-[80px] bg-white border-t border-gray-100 flex items-center px-8 text-sm">
+        <div class="w-1/3 text-left">
+            <span class="text-gray-400">Developed by: <b class="text-[#7A2F8C] font-bold">Eng. Iman Helal</b></span>
+        </div>
+        <div class="w-1/3 text-center">
+            <div class="font-bold text-[#7A2F8C]">WE Applied Technology School © 2026</div>
+        </div>
+        <div class="w-1/3 text-right">
+            <span class="text-gray-400">Powered by: <b class="text-[#7A2F8C] font-bold">GALAXY FOR DEVELOPMENT</b></span>
+        </div>
+    </footer>
+
+    <script>
+        // بنك الأسئلة (يمكنك إضافة الـ 150 سؤال هنا)
+        const allQuestionsBank = [
+    // --- True or False (1-24) ---
+    { id: 1, type: "tf", q: "(True or False) An algorithm is a step-by-step procedure to solve a problem.", a: "true" },
+    { id: 2, type: "tf", q: "(True or False) Sorting algorithms helps arrange data in a specific order.", a: "true" },
+    { id: 3, type: "tf", q: "(True or False) Primitive data structures include integers, floats, and characters.", a: "true" },
+    { id: 4, type: "tf", q: "(True or False) A social network can be represented as a graph data structure.", a: "true" },
+    { id: 5, type: "tf", q: "(True or False) Complexity measures the speed of an algorithm.", a: "true" },
+    { id: 6, type: "tf", q: "(True or False) Big O notation is used to describe algorithm complexity.", a: "true" },
+    { id: 7, type: "tf", q: "(True or False) An efficient algorithm always has a low time complexity.", a: "false" },
+    { id: 8, type: "tf", q: "(True or False) Algorithm complexity helps in determining how performance scales with input size.", a: "true" },
+    { id: 9, type: "tf", q: "(True or False) Arrays store elements in an unordered manner.", a: "false" },
+    { id: 10, type: "tf", q: "(True or False) Arrays are the basis for more complex data structures.", a: "true" },
+    { id: 11, type: "tf", q: "(True or False) Arrays allow for fast access to elements using an index.", a: "true" },
+    { id: 12, type: "tf", q: "(True or False) A linked list consists of nodes connected by pointers.", a: "true" },
+    { id: 13, type: "tf", q: "(True or False) Hash maps use a key-value pair to store data.", a: "true" },
+    { id: 14, type: "tf", q: "(True or False) An array is more efficient than a linked list when inserting in the middle.", a: "false" },
+    { id: 15, type: "tf", q: "(True or False) Linked lists can dynamically grow without resizing.", a: "true" },
+    { id: 16, type: "tf", q: "(True or False) In a linked list, each node contains only data.", a: "false" },
+    { id: 17, type: "tf", q: "(True or False) A linked list requires additional memory for pointers.", a: "true" },
+    { id: 18, type: "tf", q: "(True or False) The last node of a linked list always points to another node.", a: "false" },
+    { id: 19, type: "tf", q: "(True or False) A hash map is also called a dictionary.", a: "true" },
+    { id: 20, type: "tf", q: "(True or False) Arrays can store only one type of data.", a: "false" },
+    { id: 21, type: "tf", q: "(True or False) Searching in a hash map is generally faster than in an array.", a: "true" },
+    { id: 22, type: "tf", q: "(True or False) Deleting a node from a linked list requires shifting elements.", a: "false" },
+    { id: 23, type: "tf", q: "(True or False) The length of an array is fixed and cannot be changed.", a: "false" },
+    { id: 24, type: "tf", q: "(True or False) Linked lists allow efficient insertion and deletion at any point.", a: "true" },
+
+    // --- Multiple Choice (25-38) ---
+    { id: 25, type: "mcq", q: "What are data structures used for?", opts: ["To compile programs", "To organize and store data efficiently", "To execute machine code", "To create new programming languages"], a: "To organize and store data efficiently" },
+    { id: 26, type: "mcq", q: "What is an algorithm?", opts: ["A programming language", "A step-by-step procedure to solve a problem", "A data storage method", "A type of software"], a: "A step-by-step procedure to solve a problem" },
+    { id: 27, type: "mcq", q: "What type of data structure is an array?", opts: ["Collection of different types", "Fixed-size collection of same type", "Random numbers", "Hierarchical structure"], a: "Fixed-size collection of same type" },
+    { id: 28, type: "mcq", q: "Which data structure is best suited for hierarchical data?", opts: ["Stack", "Queue", "Tree", "Array"], a: "Tree" },
+    { id: 29, type: "mcq", q: "What does a node in a linked list contain?", opts: ["Only data", "Only a pointer", "Data and a pointer to the next node", "Key-value pair"], a: "Data and a pointer to the next node" },
+    { id: 30, type: "mcq", q: "Which data structure is best for searching using keys?", opts: ["Array", "Linked list", "Hash map", "Stack"], a: "Hash map" },
+    { id: 31, type: "mcq", q: "What is the advantage of using a linked list over an array?", opts: ["Fast element access", "Easier insertion and deletion", "Less memory usage", "Fixed size"], a: "Easier insertion and deletion" },
+    { id: 32, type: "mcq", q: "Accessing an index beyond the array size causes:", opts: ["Null value", "IndexOutOfBounds error", "Loop back to first", "Auto add element"], a: "IndexOutOfBounds error" },
+    { id: 33, type: "mcq", q: "Which is NOT a feature of an array?", opts: ["Same data type", "Fixed size", "Can dynamically grow", "Fast lookup by index"], a: "Can dynamically grow" },
+    { id: 34, type: "mcq", q: "In a singly linked list, each node contains:", opts: ["Data only", "Prev pointer", "Next pointer", "Data and Next pointer"], a: "Data and Next pointer" },
+    { id: 35, type: "mcq", q: "Disadvantage of linked lists compared to arrays?", opts: ["Cannot store multiple types", "No dynamic allocation", "Uses more memory for pointers", "Has fixed size"], a: "Uses more memory for pointers" },
+    { id: 36, type: "mcq", q: "Which is NOT a benefit of a linked list?", opts: ["Easy insertion", "Easy deletion", "Efficient random access", "Flexible memory usage"], a: "Efficient random access" },
+    { id: 37, type: "mcq", q: "Primary purpose of a Hash Map?", opts: ["Sorting data", "Storing key-value pairs efficiently", "Managing file systems", "Implementing recursion"], a: "Storing key-value pairs efficiently" },
+    { id: 38, type: "mcq", q: "What happens during a collision in a Hash Map?", opts: ["New value replaces old", "Keys are ignored", "Collision needs handling", "Key is stored twice"], a: "Collision occurs and needs to be handled" },
+
+    // --- Scientific Terms (39-55) ---
+    { id: 39, type: "essay", q: "(Scientific Term) Way of organizing and storing data to perform operations effectively.", a: "Data Structures" },
+    { id: 40, type: "essay", q: "(Scientific Term) Step-by-step procedure to achieve a desired output.", a: "Algorithm" },
+    { id: 50, type: "essay", q: "(Scientific Term) Scenario where algorithm’s efficiency is affected by data structure choice.", a: "Optimization" },
+    { id: 51, type: "essay", q: "(Scientific Term) Ordered collection of elements accessible by index.", a: "Array" },
+    { id: 52, type: "essay", q: "(Scientific Term) Data structure consisting of nodes linked together.", a: "Linked List" },
+    { id: 53, type: "essay", q: "(Scientific Term) Key-value based data structure used for fast lookups.", a: "Hash Map" },
+    { id: 54, type: "essay", q: "(Scientific Term) A node's reference to the next node in a linked list.", a: "Pointer" },
+    { id: 55, type: "essay", q: "(Scientific Term) The process of arranging data in a specific order.", a: "Sorting" },
+
+    // --- Short Answer / Essay (58-70) ---
+    { id: 58, type: "essay", q: "(Short Answer) What is the primary purpose of data structures in programming?", a: "To organize and store data efficiently so that operations can be performed effectively." },
+    { id: 56.2, type: "essay", q: "(Short Answer) How do algorithms differ from data structures?", a: "Data structures store data, while algorithms are procedures used to process that data." },
+    { id: 59, type: "essay", q: "(Short Answer) What are the main types of data structures?", a: "Primitive (Integer, Float) and Abstract (Arrays, Linked Lists, Trees, etc)." },
+    { id: 60, type: "essay", q: "(Short Answer) Factors to consider when choosing a data structure?", a: "Data type, access speed, insertion speed, and data size." },
+    { id: 61, type: "essay", q: "(Short Answer) Give examples of DS in social media.", a: "Arrays for friends, Trees for hierarchy, Graphs for connections." },
+    { id: 62, type: "essay", q: "(Short Answer) Difference between Stack and Queue?", a: "Stack is LIFO, Queue is FIFO." },
+    { id: 63, type: "essay", q: "(Short Answer) What is an array and how does it work?", a: "Ordered collection where elements are accessed via unique numerical index." },
+    { id: 64, type: "essay", q: "(Short Answer) What is the last node in a linked list called?", a: "The null node." },
+    { id: 65, type: "essay", q: "(Short Answer) How does an array differ from a linked list?", a: "Arrays use contiguous memory; linked lists use nodes and pointers." },
+    { id: 66, type: "essay", q: "(Short Answer) Benefits of using arrays?", a: "Fast access, efficient handling of large datasets." },
+    { id: 67, type: "essay", q: "(Short Answer) Explain how a linked list works.", a: "Consists of nodes with data and pointers to the next node." },
+    { id: 68, type: "essay", q: "(Short Answer) What is a hash map?", a: "Data structure storing key-value pairs for fast retrieval." },
+    { id: 69, type: "essay", q: "(Short Answer) Main parts of a node?", a: "Data and pointer to the next node." },
+    { id: 70, type: "essay", q: "(Short Answer) Hash map vs Array retrieval?", a: "Hash maps use keys; arrays use numerical indexes." },
+
+    // --- Complete the Sentence (71-80) ---
+    { id: 71, type: "essay", q: "(Complete) Array elements are accessed through a unique [___] starting at zero.", a: "index" },
+    { id: 72, type: "essay", q: "(Complete) Arrays help to [___] data in an organized way.", a: "organize" },
+    { id: 73, type: "essay", q: "(Complete) The length of an array is [___] and can be changed.", a: "dynamic" },
+    { id: 74, type: "essay", q: "(Complete) A linked list consists of a collection of [___].", a: "nodes" },
+    { id: 75, type: "essay", q: "(Complete) The last node in a linked list is the [___] node.", a: "null" },
+    { id: 76, type: "essay", q: "(Complete) Linked lists allow easy [___] and deletion without shifting.", a: "addition" },
+    { id: 78, type: "essay", q: "(Complete) A Hash Map is best for storing [___] data.", a: "key-value" },
+    { id: 79, type: "essay", q: "(Complete) To delete from Hash Map in JS, use the [___] method.", a: "delete()" },
+    { id: 80, type: "essay", q: "(Complete) Each node contains a [___] to the next node.", a: "pointer" },
+
+    // --- Algorithms TF (81-89) ---
+    { id: 81, type: "tf", q: "(True or False) Selection sort places the smallest remaining element correctly.", a: "true" },
+    { id: 82, type: "tf", q: "(True or False) Bubble sort compares and swaps adjacent elements.", a: "true" },
+    { id: 83, type: "tf", q: "(True or False) Insertion sort inserts an element into its sorted portion.", a: "true" },
+    { id: 84, type: "tf", q: "(True or False) Sorting arranges in order, selection finds specific element.", a: "true" },
+    { id: 85, type: "tf", q: "(True or False) Bubble sort is most efficient for large datasets.", a: "false" },
+    { id: 86, type: "tf", q: "(True or False) Insertion sort is similar to sorting cards in hand.", a: "true" },
+    { id: 87, type: "tf", q: "(True or False) Selection sort compares every unsorted element with min.", a: "true" },
+    { id: 88, type: "tf", q: "(True or False) If sorted, bubble sort still performs comparisons.", a: "true" },
+    { id: 89, type: "tf", q: "(True or False) Sorting algorithms are only for numbers.", a: "false" },
+
+    // --- Algorithms MCQ (91-95) ---
+    { id: 91, type: "mcq", q: "Which algorithm compares and swaps adjacent elements?", opts: ["Selection", "Insertion", "Bubble", "Merge"], a: "Bubble" },
+    { id: 92, type: "mcq", q: "Which algorithm selects the smallest remaining element?", opts: ["Bubble", "Insertion", "Selection", "Quick"], a: "Selection" },
+    { id: 93, type: "mcq", q: "Primary goal of sorting?", opts: ["Find largest", "Search value", "Arrange in order", "Count elements"], a: "Arrange in order" },
+    { id: 94, type: "mcq", q: "Bubble sort name origin?", opts: ["Divides list", "Smaller elements 'bubble' up", "Algorithm speed", "List shape"], a: "Smaller elements 'bubble' up" },
+    { id: 95, type: "mcq", q: "In insertion sort, where is the 'key' placed?", opts: ["End", "Random", "Correct sorted position on left", "Beginning"], a: "Correct sorted position on left" },
+
+    // --- Algorithms Terms (96-100) ---
+    { id: 96, type: "essay", q: "(Scientific Term) Algorithm that swaps adjacent elements.", a: "Bubble Sort" },
+    { id: 97, type: "essay", q: "(Scientific Term) Algorithm that selects smallest remaining element.", a: "Selection Sort" },
+    { id: 98, type: "essay", q: "(Scientific Term) Algorithm that puts new items in right place in sorted part.", a: "Insertion Sort" },
+    { id: 99, type: "essay", q: "(Scientific Term) Arranging elements in specific order.", a: "Sorting" },
+    { id: 100, type: "essay", q: "(Scientific Term) Finding specific element in a collection.", a: "Selection" },
+
+    // --- Data Structures TF (101-125) ---
+    { id: 101, type: "tf", q: "(True or False) Stack follows LIFO principle.", a: "true" },
+    { id: 102, type: "tf", q: "(True or False) In stack, first added is first removed.", a: "false" },
+    { id: 103, type: "tf", q: "(True or False) Primary stack operations are push and pop.", a: "true" },
+    { id: 104, type: "tf", q: "(True or False) TOP in stack is initialized to 0 when empty.", a: "false" },
+    { id: 105, type: "tf", q: "(True or False) Queue uses LIFO principle.", a: "false" },
+    { id: 106, type: "tf", q: "(True or False) In queue, first enqueued is first dequeued.", a: "true" },
+    { id: 107, type: "tf", q: "(True or False) Enqueue and dequeue are for stacks.", a: "false" },
+    { id: 108, type: "tf", q: "(True or False) Queue uses FRONT and REAR pointers.", a: "true" },
+    { id: 109, type: "tf", q: "(True or False) Tree nodes can have multiple children.", a: "true" },
+    { id: 110, type: "tf", q: "(True or False) Root node is topmost node.", a: "true" },
+    { id: 111, type: "tf", q: "(True or False) Height is edges to deepest leaf.", a: "true" },
+    { id: 112, type: "tf", q: "(True or False) Depth is calculated from node to root.", a: "true" },
+    { id: 113, type: "tf", q: "(True or False) Edge represents connection between nodes.", a: "true" },
+    { id: 114, type: "tf", q: "(True or False) Forest is a collection of disjoint trees.", a: "true" },
+    { id: 115, type: "tf", q: "(True or False) Top node in binary tree is root.", a: "true" },
+    { id: 116, type: "tf", q: "(True or False) Binary tree node can only have one child.", a: "false" },
+    { id: 117, type: "tf", q: "(True or False) Graphs represent relationships between objects.", a: "true" },
+    { id: 118, type: "tf", q: "(True or False) In graphs, nodes are connected by edges.", a: "true" },
+    { id: 119, type: "tf", q: "(True or False) Binary search works on unsorted lists.", a: "false" },
+    { id: 120, type: "tf", q: "(True or False) Binary search cuts list in half each guess.", a: "true" },
+    { id: 121, type: "tf", q: "(True or False) Binary tree can organize family trees.", a: "true" },
+    { id: 122, type: "tf", q: "(True or False) Graph edges only go in one direction.", a: "false" },
+    { id: 123, type: "tf", q: "(True or False) Binary search is slower than linear search.", a: "false" },
+    { id: 124, type: "tf", q: "(True or False) Middle number in binary search is always answer.", a: "false" },
+    { id: 125, type: "tf", q: "(True or False) Graphs can represent social networks.", a: "true" },
+
+    // --- Final MCQ & Terms (126-150) ---
+    { id: 126, type: "mcq", q: "What is the top node in a binary tree?", opts: ["Leaf", "Root", "Branch", "Edge"], a: "Root" },
+    { id: 127, type: "mcq", q: "What is a graph made up of?", opts: ["Nodes and edges", "Roots and leaves", "Questions", "Numbers"], a: "Nodes and edges" },
+    { id: 128, type: "mcq", q: "Nodes in a graph with no connections:", opts: ["Roots", "Leaves", "Isolated nodes", "Branches"], a: "Isolated nodes" },
+    { id: 129, type: "mcq", q: "Required for binary search to work?", opts: ["Unsorted list", "Sorted list", "Random list", "Empty list"], a: "Sorted list" },
+    { id: 130, type: "mcq", q: "Nodes with no children in binary tree:", opts: ["Roots", "Leaves", "Branches", "Edges"], a: "Leaves" },
+    { id: 131, type: "mcq", q: "First step in binary search?", opts: ["Guess first", "Guess last", "Guess middle", "Sort list"], a: "Guess middle" },
+    { id: 132, type: "mcq", q: "Example of a graph:", opts: ["Family tree", "Road map", "Binary tree", "Guessing game"], a: "Road map" },
+    { id: 133, type: "essay", q: "(Scientific Term) DS operating on LIFO principle.", a: "Stack" },
+    { id: 134, type: "essay", q: "(Scientific Term) Stack operation to add element.", a: "Push" },
+    { id: 135, type: "essay", q: "(Scientific Term) Stack operation to remove top element.", a: "Pop" },
+    { id: 136, type: "essay", q: "(Scientific Term) Principle of removal in a stack.", a: "LIFO" },
+    { id: 137, type: "essay", q: "(Scientific Term) DS where first added is first removed.", a: "Queue" },
+    { id: 138, type: "essay", q: "(Scientific Term) Adding element to end of queue.", a: "Enqueue" },
+    { id: 139, type: "essay", q: "(Scientific Term) Removing from front of queue.", a: "Dequeue" },
+    { id: 140, type: "essay", q: "(Scientific Term) Pointer tracking front of queue.", a: "FRONT" },
+    { id: 141, type: "essay", q: "(Scientific Term) Pointer tracking last element in queue.", a: "REAR" },
+    { id: 142, type: "essay", q: "(Scientific Term) Hierarchical DS of nodes and edges.", a: "Tree" },
+    { id: 143, type: "essay", q: "(Scientific Term) Topmost node in a tree.", a: "Root" },
+    { id: 144, type: "essay", q: "(Scientific Term) Node with no children.", a: "Leaf" },
+    { id: 145, type: "essay", q: "(Scientific Term) Longest path from node to leaf.", a: "Height" },
+    { id: 146, type: "essay", q: "(Scientific Term) Edges from root to specific node.", a: "Depth" },
+    { id: 147, type: "essay", q: "(Scientific Term) Tree where each node has max two children.", a: "Binary Tree" },
+    { id: 148, type: "essay", q: "(Scientific Term) Collection of disjoint trees.", a: "Forest" },
+    { id: 149, type: "essay", q: "(Scientific Term) Connection between nodes in a tree.", a: "Edge" },
+    { id: 150, type: "essay", q: "(Scientific Term) Viewing top stack element without removing.", a: "Peek" }
+];
+
+        let currentSubset = [];
+        let examFinished = false;
+        let timeLeft = 600;
+        let timerInt;
+
+        function startTimer() {
+            clearInterval(timerInt);
+            timeLeft = 600;
+            timerInt = setInterval(() => {
+                if(examFinished) return;
+                timeLeft--;
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                document.getElementById('timer-display').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if(timeLeft <= 0) submitQuiz();
+            }, 1000);
+        }
+
+        function renderQuestions() {
+            // اختيار 20 عشوائي
+            currentSubset = [...allQuestionsBank].sort(() => 0.5 - Math.random()).slice(0, 20);
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            examFinished = false;
+            
+            currentSubset.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.id = `q-block-${i}`;
+                div.className = "card p-8";
+                
+                let html = `<div class="flex justify-between items-center mb-6">
+                    <span class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Question ${i+1}</span>
+                    <span id="pts-${i}" class="text-xs font-bold text-we-purple bg-purple-50 px-4 py-1.5 rounded-full uppercase">Pts: -/10</span>
+                </div>`;
+
+                if(q.type === 'tf') {
+                    html += `<h3 class="text-xl font-bold mb-6">${q.q}</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="saveAnswer(${i}, 'true', this)" class="tf-btn">True</button>
+                            <button onclick="saveAnswer(${i}, 'false', this)" class="tf-btn">False</button>
+                        </div>`;
+                } else if(q.type === 'mcq') {
+                    html += `<h3 class="text-xl font-bold mb-6">${q.q}</h3>
+                        <div class="space-y-3">
+                            ${q.opts.map(o => `<button onclick="saveAnswer(${i}, '${o}', this)" class="tf-btn text-left px-6">${o}</button>`).join('')}
+                        </div>`;
+                } else if(q.type === 'essay' || q.type === 'term' || q.type === 'complete') {
+                    const displayQ = q.q.replace("[___]", "_______");
+                    html += `<h3 class="text-xl font-bold mb-6">${displayQ}</h3>
+                        <input type="text" placeholder="Type your answer here..." oninput="saveAnswer(${i}, this.value)" class="input-box">`;
+                }
+
+                html += `<div id="err-${i}" class="mt-4 p-4 rounded-xl bg-red-100 text-red-700 text-sm font-bold hidden"></div>`;
+                html += `<input type="hidden" id="ans-val-${i}">`;
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('main-submit-btn').innerText = "Finish & Submit";
+            document.getElementById('main-submit-btn').className = "bg-we-purple text-white px-20 py-5 rounded-2xl font-extrabold text-xl hover:scale-105 transition-all shadow-xl active:scale-95";
+            document.getElementById('main-submit-btn').onclick = submitQuiz;
+            
+            startTimer();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function saveAnswer(idx, val, btn) {
+            if(examFinished) return;
+            document.getElementById(`ans-val-${idx}`).value = val;
+            if(btn && btn.tagName === 'BUTTON') {
+                const p = btn.parentElement;
+                p.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected-true', 'selected-false', 'mcq-selected'));
+                if(val === 'true') btn.classList.add('selected-true');
+                else if(val === 'false') btn.classList.add('selected-false');
+                else btn.classList.add('mcq-selected');
+            }
+        }
+
+        // دالة التصحيح الذكية (AI Grading Logic)
+        function aiGrade(user, correct, type) {
+            if(!user) return 0;
+            user = user.trim().toLowerCase();
+            const target = correct.toLowerCase();
+            
+            if(type === 'tf' || type === 'mcq' || type === 'term' || type === 'complete') {
+                return (user === target) ? 10 : 0;
+            }
+            
+            if(type === 'essay') {
+                // التصحيح يعتمد على وجود كلمات مفتاحية في إجابة الطالب
+                const keywords = target.split(', ');
+                let score = 0;
+                keywords.forEach(k => { if(user.includes(k.trim())) score += (10/keywords.length); });
+                return score >= 5 ? 10 : (score > 0 ? 5 : 0); // تقريب الدرجة
+            }
+            return 0;
+        }
+
+        function submitQuiz() {
+            if(examFinished) return;
+            examFinished = true;
+            clearInterval(timerInt);
+            let totalScore = 0;
+
+            currentSubset.forEach((q, i) => {
+                const user = document.getElementById(`ans-val-${i}`).value;
+                const block = document.getElementById(`q-block-${i}`);
+                const err = document.getElementById(`err-${i}`);
+                const ptsLabel = document.getElementById(`pts-${i}`);
+
+                const score = aiGrade(user, q.a, q.type);
+                totalScore += score;
+
+                block.classList.add('disabled-state');
+                if(score >= 10) {
+                    block.classList.add('correct-card');
+                    ptsLabel.innerText = "Pts: 10/10";
+                } else if (score > 0) {
+                    block.classList.add('correct-card'); // درجة متوسطة
+                    block.style.borderColor = "#eab308"; 
+                    ptsLabel.innerText = `Pts: ${Math.round(score)}/10`;
+                } else {
+                    block.classList.add('wrong-card');
+                    ptsLabel.innerText = "Pts: 0/10";
+                    err.innerText = `Correct Answer: ${q.a}`;
+                    err.classList.remove('hidden');
+                }
+            });
+
+            const percent = (totalScore / (currentSubset.length * 10)) * 100;
+            document.getElementById('final-score-percent').innerText = Math.round(percent) + "%";
+            document.getElementById('result-modal').classList.remove('hidden');
+            
+            const submitBtn = document.getElementById('main-submit-btn');
+            submitBtn.innerText = "Next 20 Questions ➔";
+            submitBtn.onclick = nextRound;
+            submitBtn.classList.replace('bg-we-purple', 'bg-green-600');
+        }
+
+        function nextRound() {
+            document.getElementById('result-modal').classList.add('hidden');
+            renderQuestions();
+        }
+
+        function closeModal() { 
+            document.getElementById('result-modal').classList.add('hidden'); 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
+
+        window.onload = renderQuestions;
+    </script>
+</body>
+</html>
