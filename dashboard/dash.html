@@ -4,13 +4,10 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Dashboard</title>
+  <title>Unit Dashboard - Smart Learning</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -31,185 +28,268 @@
     }
   </script>
   <style>
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    #pdf-modal.hidden { display: none; }
+    .logo-img { height: 45px; width: auto; object-fit: contain; }
+    
+    /* Loading Spinner Animation */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #601273;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
     }
-
-    #pdf-modal.hidden {
-      display: none;
-    }
-
-    /* تنسيق اللوجوهات */
-    .logo-img {
-      height: 45px;
-      width: auto;
-      object-fit: contain;
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 
 <body class="bg-surface text-on-surface font-body">
 
-  <header
-    class="fixed top-0 w-full h-[80px] z-50 bg-white/80 backdrop-blur-xl shadow-sm flex flex-row-reverse justify-between items-center px-8">
+  <header class="fixed top-0 w-full h-[80px] z-50 bg-white/80 backdrop-blur-xl shadow-sm flex flex-row-reverse justify-between items-center px-8">
     <div class="flex items-center gap-6">
-    <a class="flex items-center gap-2 text-[#601273] font-bold hover:opacity-80 transition-opacity" href="../interactive_selection_flow/index.html">
+      <a class="flex items-center gap-2 text-[#601273] font-bold hover:opacity-80 transition-opacity" href="../index.html" aria-label="Go to Home Page">
         <span class="material-symbols-outlined !text-[20px]">home</span>
         Home
-    </a>
-</div>
-    
+      </a>
+    </div>
 
     <div class="flex items-center gap-6">
       <div class="flex items-center gap-4 lg:gap-6 flex-row-reverse">
-        <img src="../Ministry.png" alt="Ministry of Education" class="logo-img" title="Ministry of Education">
-        <img src="../pplied Technology.png" alt="Applied Technology" class="logo-img" title="Applied Technology">
-        <img src="../WE Schools for Applied Technology.png" alt="WE Schools" class="logo-img" title="WE Schools">
-        <img src="../Galaxy Academy for Development.png" alt="Galaxy Academy" class="logo-img" title="Galaxy Academy">
+        <img src="../Ministry.png" alt="Ministry of Education" class="logo-img">
+        <img src="../pplied Technology.png" alt="Applied Technology" class="logo-img">
+        <img src="../WE Schools for Applied Technology.png" alt="WE Schools" class="logo-img">
+        <img src="../Galaxy Academy for Development.png" alt="Galaxy Academy" class="logo-img">
       </div>
-
     </div>
   </header>
 
   <main class="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
-    <section class="mb-16">
-      <h2 class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-4 tracking-tight">
-        Unit 14: Data Structure and Algorithm
+    
+    <section id="progress-section" class="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hidden">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-bold text-primary">Your Learning Progress</span>
+            <span id="progress-text" class="text-sm font-black text-secondary">0%</span>
+        </div>
+        <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-primary to-secondary h-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+      <h2 id="unit-main-title" class="font-headline text-4xl md:text-5xl font-extrabold text-primary mb-4 tracking-tight">
+        Loading Unit...
       </h2>
-      <p class="text-on-surface-variant max-w-2xl text-lg">
-        In a world of limited resources, Algorithms are the art of doing more with less. Master the balance between Space and Time.
+      <p id="unit-description" class="text-on-surface-variant max-w-2xl text-lg">
+        Please wait while we prepare your learning materials.
       </p>
     </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="main-grid">
 
-      <div onclick="openPDF('../unit_dashboard/school Book .pdf', 103)"
-        class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all cursor-pointer flex flex-col justify-between h-64 border border-gray-100">
+      <button id="btn-school-book" aria-label="Open School Book" class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all flex flex-col justify-between h-64 border border-gray-100 text-left w-full">
         <div>
-          <div
-            class="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-            <span class="material-symbols-outlined">menu_book</span>
+          <div class="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+            <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
           </div>
           <h3 class="font-headline text-xl font-bold">School Book</h3>
-          <p class="text-sm text-gray-500">The theoretical core of algorithms and structures.</p>
+          <p class="text-sm text-gray-500">The theoretical core of the unit content and principles.</p>
         </div>
         <div class="flex justify-end"><span class="material-symbols-outlined text-secondary">arrow_forward</span></div>
-      </div>
+      </button>
 
-      <div onclick="openPDF('../unit_dashboard/practical Guide G2_Programming& web development-Unit14.pdf')"
-        class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all cursor-pointer flex flex-col justify-between h-64 border border-gray-100">
+      <button id="btn-practical-book" aria-label="Open Practical Workbook" class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all flex flex-col justify-between h-64 border border-gray-100 text-left w-full">
         <div>
-          <div
-            class="w-12 h-12 bg-secondary/5 rounded-lg flex items-center justify-center mb-6 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
-            <span class="material-symbols-outlined">edit_note</span>
+          <div class="w-12 h-12 bg-secondary/5 rounded-lg flex items-center justify-center mb-6 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+            <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
           </div>
           <h3 class="font-headline text-xl font-bold">Practical Workbook</h3>
-          <p class="text-sm text-gray-500">Hands-on exercises for Unit 14.</p>
+          <p class="text-sm text-gray-500">Applied tasks, exercises, and hands-on activities.</p>
         </div>
         <div class="flex justify-end"><span class="material-symbols-outlined text-secondary">arrow_forward</span></div>
-      </div>
+      </button>
 
-      <div onclick="openPDF('../unit_dashboard/Web Development and Programming Unit 14 Field Training Guide.pdf')"
-        class="group lg:col-span-2 bg-gradient-to-br from-primary to-primary-container p-8 rounded-xl shadow-lg hover:scale-105 transition-all cursor-pointer flex flex-col justify-between h-64 text-white">
+      <button id="btn-field-training" aria-label="Open Field Training Guide" class="group bg-gradient-to-br from-primary to-primary-container p-8 rounded-xl shadow-lg hover:scale-105 transition-all flex flex-col justify-between h-64 text-white text-left w-full">
         <div>
-          <span class="material-symbols-outlined text-4xl mb-4">precision_manufacturing</span>
-          <h3 class="font-headline text-2xl font-bold">Field Training Guide</h3>
-          <p class="text-white/80">Industrial applications and real-world project guidelines.</p>
+          <span class="material-symbols-outlined text-4xl mb-4" aria-hidden="true">precision_manufacturing</span>
+          <h3 class="font-headline text-2xl font-bold">Field Training</h3>
+          <p class="text-white/80">Real-world industrial applications and site guidelines.</p>
         </div>
         <div class="flex justify-end">
-          <span class="flex items-center gap-2 font-semibold">Open Guide <span
-              class="material-symbols-outlined">north_east</span></span>
+          <span class="flex items-center gap-2 font-semibold">Open Guide <span class="material-symbols-outlined" aria-hidden="true">north_east</span></span>
         </div>
-      </div>
+      </button>
 
-      <div
-        class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all cursor-pointer flex flex-col justify-between h-64 border border-gray-100">
-        <div class="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mb-6 text-primary"><span
-            class="material-symbols-outlined">video_library</span></div>
-        <h3 class="font-headline font-bold">Lecture Vault</h3>
-      </div>
-     <a href="../Question_Bank/question_bank.html" class="block">
-  <div class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all cursor-pointer flex flex-col justify-between h-64 border border-gray-100">
-    <div class="w-12 h-12 bg-secondary/5 rounded-lg flex items-center justify-center mb-6 text-secondary">
-      <span class="material-symbols-outlined">quiz</span>
-    </div>
-    <h3 class="font-headline font-bold">Question Bank</h3>
-  </div>
-</a>
+      <button onclick="openQuiz('general')" aria-label="Take Mini Quizzes" class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all flex flex-col justify-between h-64 border border-gray-100 text-left w-full">
+        <div>
+          <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center mb-6 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+            <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+          </div>
+          <h3 class="font-headline text-xl font-bold">Mini Quizzes</h3>
+          <p class="text-sm text-gray-500">Quick tests to evaluate your understanding of the unit.</p>
+        </div>
+        <div class="flex justify-end"><span class="material-symbols-outlined text-orange-600">bolt</span></div>
+      </button>
+
+      <button aria-label="Open Lecture Vault" class="group bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all flex flex-col justify-between h-64 border border-gray-100 text-left w-full">
+        <div>
+            <div class="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined" aria-hidden="true">video_library</span>
+            </div>
+            <h3 class="font-headline font-bold text-xl">Lecture Vault</h3>
+            <p class="text-sm text-gray-500">Recorded sessions and visual presentations.</p>
+        </div>
+        <div class="flex justify-end"><span class="material-symbols-outlined text-secondary">play_circle</span></div>
+      </button>
+
+      <a href="../Question_Bank/question_bank.html" class="block group" aria-label="Go to Question Bank">
+        <div class="bg-white p-8 rounded-xl shadow-sm hover:scale-105 transition-all flex flex-col justify-between h-64 border border-gray-100 text-left h-full">
+          <div>
+            <div class="w-12 h-12 bg-secondary/5 rounded-lg flex items-center justify-center mb-6 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined" aria-hidden="true">quiz</span>
+            </div>
+            <h3 class="font-headline font-bold text-xl">Question Bank</h3>
+            <p class="text-sm text-gray-500">Comprehensive database of exam questions.</p>
+          </div>
+          <div class="flex justify-end"><span class="material-symbols-outlined text-secondary">reorder</span></div>
+        </div>
+      </a>
+
     </div>
   </main>
 
-  <div id="pdf-modal"
-    class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-md px-4">
+  <div id="pdf-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/60 backdrop-blur-md px-4" role="dialog" aria-labelledby="pdf-title">
     <div class="bg-white w-full max-w-5xl h-[92vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative">
       <div class="h-16 border-b flex items-center justify-between px-6 bg-white">
         <div class="flex items-center gap-3">
           <span class="material-symbols-outlined text-red-600">picture_as_pdf</span>
-          <span id="pdf-title"
-            class="font-headline font-bold text-gray-800 truncate max-w-xs md:max-w-md">Document.pdf</span>
+          <span id="pdf-title" class="font-headline font-bold text-gray-800 truncate max-w-xs md:max-w-md">Document.pdf</span>
         </div>
         <div class="flex items-center gap-4">
-          <a id="download-link" href="#" download
-            class="px-4 py-2 bg-secondary text-white rounded-lg text-sm font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2">
+          <a id="download-link" href="#" download class="px-4 py-2 bg-secondary text-white rounded-lg text-sm font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2">
             <span class="material-symbols-outlined !text-sm">download</span> Download
           </a>
-          <button onclick="closePDF()"
-            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
+          <button onclick="closePDF()" class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors" aria-label="Close Preview">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
       </div>
-      <div class="flex-1 bg-gray-100 overflow-hidden">
-        <iframe id="pdf-viewer" src="" class="w-full h-full" frameborder="0"></iframe>
+      <div class="flex-1 bg-gray-100 overflow-hidden relative">
+        <div id="pdf-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 z-10">
+            <div class="loader mb-4"></div>
+            <p class="text-primary font-bold animate-pulse">Preparing your document...</p>
+        </div>
+        <iframe id="pdf-viewer" src="" class="w-full h-full" frameborder="0" onload="hideLoader()"></iframe>
       </div>
     </div>
   </div>
 
-   <footer class="fixed bottom-0 w-full h-[80px] bg-white border-t border-gray-100 flex items-center px-8 text-sm">
-        <div class="w-1/3 text-left">
-            <span class="text-gray-400">Developed by: <b class="text-[#7A2F8C] font-bold">GFD Dev. Team</b></span>
-        </div>
-        <div class="w-1/3 text-center">
-            <div class="font-bold text-[#7A2F8C]">WE Applied Technology School © 2026</div>
-        </div>
-        <div class="w-1/3 text-right">
-            <span class="text-gray-400">Powered by: <b class="text-[#7A2F8C] font-bold">GALAXY FOR DEVELOPMENT</b></span>
-        </div>
-    </footer>
-
+  <footer class="fixed bottom-0 w-full h-[80px] bg-white border-t border-gray-100 flex items-center px-8 text-sm">
+    <div class="w-1/3 text-left"><span class="text-gray-400">Developed by: <b class="text-[#7A2F8C] font-bold">GFD Dev. Team</b></span></div>
+    <div class="w-1/3 text-center text-[#7A2F8C] font-bold">WE Applied Technology School © 2026</div>
+    <div class="w-1/3 text-right"><span class="text-gray-400">Powered by: <b class="text-[#7A2F8C] font-bold">GALAXY FOR DEVELOPMENT</b></span></div>
+  </footer>
 
   <script>
-    function openPDF(fileName, page) {
-      const modal = document.getElementById('pdf-modal');
-      const viewer = document.getElementById('pdf-viewer');
-      const titleSpan = document.getElementById('pdf-title');
-      const downloadBtn = document.getElementById('download-link');
+    const unitsData = {
+      "9": {
+        title: "Unit 9: AI Principles and Applications",
+        desc: "AI is not just a technology it is the new world we are building. Welcome to the future.",
+        schoolBook: "../unit_dashboard/L1_S2_AI Principles and Applications .pdf",
+        practical: "../unit_dashboard/L1_S2_AI Principles and Applications .pdf",
+        field: "../unit_dashboard/L1_S2_Field Training _U9.pdf"
+      },
+      "14": {
+        title: "Unit 14: Data Structure and Algorithm",
+        desc: "Master the balance between Space and Time with advanced algorithms.",
+        schoolBook: "../unit_dashboard/L2_Programming_S2_school Book .pdf",
+        practical: "../unit_dashboard/L2_Programming_S2_practical Guide _Unit14.pdf",
+        field: "../unit_dashboard/L2_Programming_S2_Unit 14 Field Training Guide.pdf"
+      }
+    };
 
-      titleSpan.innerText = fileName;
+    function initDashboard() {
+      const unitNum = localStorage.getItem('unitNumber');
+      const mainGrid = document.getElementById('main-grid');
+      const titleEl = document.getElementById('unit-main-title');
+      const descEl = document.getElementById('unit-description');
+      const progressSection = document.getElementById('progress-section');
 
-      // دعم فتح الصفحة المحددة إذا وجدت
-      let url = fileName;
-      if (page) {
-        url += "#page=" + page;
+      if (!unitNum) {
+        titleEl.innerText = "No Unit Selected";
+        descEl.innerHTML = `Please go back to <a href="../index.html" class="text-primary underline font-bold">Home</a>.`;
+        mainGrid.style.display = 'none';
+        return;
       }
 
-      viewer.src = url;
-      downloadBtn.href = fileName;
+      const data = unitsData[unitNum];
+      if (!data) {
+        titleEl.innerText = `Unit ${unitNum} Content`;
+        descEl.innerText = "This unit's content is being uploaded.";
+        mainGrid.style.display = 'none';
+        return;
+      }
 
+      mainGrid.style.display = 'grid';
+      progressSection.classList.remove('hidden');
+      titleEl.innerText = data.title;
+      descEl.innerText = data.desc;
+
+      document.getElementById('btn-school-book').onclick = () => { openPDF(data.schoolBook); trackProgress('school'); };
+      document.getElementById('btn-practical-book').onclick = () => { openPDF(data.practical); trackProgress('practical'); };
+      document.getElementById('btn-field-training').onclick = () => { openPDF(data.field); trackProgress('field'); };
+      
+      updateProgressBar();
+    }
+
+    function trackProgress(type) {
+      const unitNum = localStorage.getItem('unitNumber');
+      let progress = JSON.parse(localStorage.getItem(`progress_u${unitNum}`)) || {};
+      progress[type] = true;
+      localStorage.setItem(`progress_u${unitNum}`, JSON.stringify(progress));
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      const unitNum = localStorage.getItem('unitNumber');
+      const progress = JSON.parse(localStorage.getItem(`progress_u${unitNum}`)) || {};
+      const completed = Object.keys(progress).length;
+      const total = 4; // School, Practical, Field, Quiz
+      const percentage = Math.round((completed / total) * 100);
+      
+      document.getElementById('progress-bar').style.width = percentage + '%';
+      document.getElementById('progress-text').innerText = percentage + '%';
+    }
+
+    function openPDF(url) {
+      if (!url) return alert("File not available.");
+      const modal = document.getElementById('pdf-modal');
+      const viewer = document.getElementById('pdf-viewer');
+      const loader = document.getElementById('pdf-loader');
+      
+      loader.style.display = 'flex';
+      document.getElementById('pdf-title').innerText = url.split('/').pop();
+      viewer.src = url;
+      document.getElementById('download-link').href = url;
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
 
+    function hideLoader() { document.getElementById('pdf-loader').style.display = 'none'; }
     function closePDF() {
-      const modal = document.getElementById('pdf-modal');
-      const viewer = document.getElementById('pdf-viewer');
-
-      viewer.src = "";
-      modal.classList.add('hidden');
+      document.getElementById('pdf-viewer').src = "";
+      document.getElementById('pdf-modal').classList.add('hidden');
       document.body.style.overflow = 'auto';
     }
+
+    function openQuiz(type) {
+        trackProgress('quiz');
+        alert(`Launching Unit Quizzes... (Link your quiz logic here)`);
+    }
+
+    window.onload = initDashboard;
   </script>
 
 </body>
-
 </html>
