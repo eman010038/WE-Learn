@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Smart Exam System - Final Pro</title>
+    <title>Question Bank Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet"
@@ -89,7 +89,6 @@
             outline: none;
             transition: 0.3s;
         }
-
         #progress-container {
             position: fixed;
             top: 80px;
@@ -129,11 +128,15 @@
                 transform: translateX(0);
             }
         }
+
+        .access-denied-bg {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+        }
+        
     </style>
 </head>
 
-<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;"
-    onkeydown="if ((event.ctrlKey || event.metaKey) && (event.key === 'c' || event.key === 'v' || event.key === 'x')) return false;">
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
 
     <div id="toast" class="toast bg-slate-800 font-bold"></div>
 
@@ -144,18 +147,8 @@
             <div class="h-8 w-[1px] bg-gray-200"></div>
             <img src="../WE Schools for Applied Technology.png" alt="WE" class="h-[45px]">
         </div>
-
-        <div class="text-center">
-            <h1 class="we-purple font-black text-lg uppercase">Question Bank</h1>
-            <p id="progress-text" class="text-xs font-bold text-gray-500">Answered: 0/20</p>
-        </div>
-
         <div class="flex items-center">
-            <a href="../dashboard/dash.html"
-                class="flex items-center gap-2 text-[#7A2F8C] font-bold hover:bg-purple-50 px-4 py-2 rounded-xl transition-all border border-purple-100">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span class="hidden sm:inline">Back to Dashboard</span>
-            </a>
+               <span class="we-purple font-black text-lg">Quistion Bank</span>
         </div>
     </header>
 
@@ -165,444 +158,130 @@
 
     <main class="max-w-3xl mx-auto p-6 mt-4">
         <div id="quiz-container" class="space-y-6"></div>
+
         <div class="mt-10 text-center hidden" id="submit-area">
-            <button onclick="submitQuiz()" id="main-submit-btn"
-                class="bg-we-purple text-white px-20 py-5 rounded-2xl font-extrabold text-xl hover:scale-105 transition-all shadow-xl">Submit
-                My Exam</button>
+            <button onclick="confirmSubmit()" id="main-submit-btn"
+                class="bg-we-purple text-white px-20 py-5 rounded-2xl font-extrabold text-xl hover:scale-105 transition-all shadow-xl">
+                Submit Exam Now
+            </button>
         </div>
     </main>
 
-    <div id="result-modal"
+   <div id="result-modal"
         class="fixed inset-0 bg-slate-900/90 hidden flex items-center justify-center z-[200] backdrop-blur-md">
         <div class="bg-white p-10 rounded-[2.5rem] max-w-md w-full text-center shadow-2xl">
-            <div id="score-icon" class="mb-4"></div>
-            <h2 class="text-2xl font-black text-slate-800">Exam Results</h2>
-            <div id="final-score-percent" class="text-7xl font-black text-we-purple my-4">0%</div>
-            <p id="score-summary" class="text-gray-500 mb-8 font-semibold"></p>
-
+            <span class="material-symbols-outlined text-6xl text-green-500">check_circle</span>
+            <h2 class="text-2xl font-black text-slate-800 mt-4">Exam Completed!</h2>
+            <div id="final-score-points" class="text-5xl font-black text-we-purple my-6">0 / 0</div>
+            
             <div class="space-y-3">
                 <button onclick="reviewOnly()"
-                    class="flex items-center justify-center gap-3 w-full bg-slate-100 text-slate-700 py-4 rounded-xl font-bold hover:bg-slate-200 transition-all">
+                    class="flex items-center justify-center gap-3 w-full border-2 border-we-purple text-we-purple py-4 rounded-xl font-bold hover:bg-purple-50 transition-all">
                     <span class="material-symbols-outlined">visibility</span> Review Answers
                 </button>
-                <button onclick="restartExam(false)"
-                    class="flex items-center justify-center gap-3 w-full bg-orange-500 text-white py-4 rounded-xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-200 transition-all">
-                    <span class="material-symbols-outlined">refresh</span> Redo Same Questions
-                </button>
-                <button onclick="restartExam(true)"
-                    class="flex items-center justify-center gap-3 w-full bg-we-purple text-white py-4 rounded-xl font-bold hover:bg-purple-800 shadow-lg shadow-purple-200 transition-all">
-                    <span class="material-symbols-outlined">shuffle</span> Next 20 Questions
+
+                <button onclick="generateAnotherSet()"
+                    class="flex items-center justify-center gap-3 w-full bg-we-purple text-white py-4 rounded-xl font-bold hover:bg-purple-800 transition-all">
+                    <span class="material-symbols-outlined">refresh</span> Load 20 New Questions
                 </button>
             </div>
         </div>
     </div>
-    <footer class="fixed bottom-0 w-full h-[80px] bg-white border-t border-gray-100 flex items-center px-8 text-sm">
-        <div class="w-1/3 text-left"><span class="text-gray-400">Developed by: <b class="text-[#7A2F8C] font-bold">GFD
-                    Dev. Team</b></span></div>
-        <div class="w-1/3 text-center text-[#7A2F8C] font-bold">WE Applied Technology School © 2026</div>
-        <div class="w-1/3 text-right"><span class="text-gray-400">Powered by: <b class="text-[#7A2F8C] font-bold">GALAXY
-                    FOR DEVELOPMENT</b></span></div>
-    </footer>
+
 
     <script>
-        const POINT_SYSTEM = { tf: 1, mcq: 2, essay: 5 };
-        const unitsQuestions = {
-            "14": [
-                { id: 1, type: "tf", q: "(True or False) An algorithm is a step-by-step procedure to solve a problem.", a: "true" },
-                { id: 2, type: "tf", q: "(True or False) Sorting algorithms helps arrange data in a specific order.", a: "true" },
-                { id: 3, type: "tf", q: "(True or False) Primitive data structures include integers, floats, and characters.", a: "true" },
-                { id: 4, type: "tf", q: "(True or False) A social network can be represented as a graph data structure.", a: "true" },
-                { id: 5, type: "tf", q: "(True or False) Complexity measures the speed of an algorithm.", a: "true" },
-                { id: 6, type: "tf", q: "(True or False) Big O notation is used to describe algorithm complexity.", a: "true" },
-                { id: 7, type: "tf", q: "(True or False) An efficient algorithm always has a low time complexity.", a: "false" },
-                { id: 8, type: "tf", q: "(True or False) Algorithm complexity helps in determining how performance scales with input size.", a: "true" },
-                { id: 9, type: "tf", q: "(True or False) Arrays store elements in an unordered manner.", a: "false" },
-                { id: 10, type: "tf", q: "(True or False) Arrays are the basis for more complex data structures.", a: "true" },
-                { id: 11, type: "tf", q: "(True or False) Arrays allow for fast access to elements using an index.", a: "true" },
-                { id: 12, type: "tf", q: "(True or False) A linked list consists of nodes connected by pointers.", a: "true" },
-                { id: 13, type: "tf", q: "(True or False) Hash maps use a key-value pair to store data.", a: "true" },
-                { id: 14, type: "tf", q: "(True or False) An array is more efficient than a linked list when inserting in the middle.", a: "false" },
-                { id: 15, type: "tf", q: "(True or False) Linked lists can dynamically grow without resizing.", a: "true" },
-                { id: 16, type: "tf", q: "(True or False) In a linked list, each node contains only data.", a: "false" },
-                { id: 17, type: "tf", q: "(True or False) A linked list requires additional memory for pointers.", a: "true" },
-                { id: 18, type: "tf", q: "(True or False) The last node of a linked list always points to another node.", a: "false" },
-                { id: 19, type: "tf", q: "(True or False) A hash map is also called a dictionary.", a: "true" },
-                { id: 20, type: "tf", q: "(True or False) Arrays can store only one type of data.", a: "false" },
-                { id: 21, type: "tf", q: "(True or False) Searching in a hash map is generally faster than in an array.", a: "true" },
-                { id: 22, type: "tf", q: "(True or False) Deleting a node from a linked list requires shifting elements.", a: "false" },
-                { id: 23, type: "tf", q: "(True or False) The length of an array is fixed and cannot be changed.", a: "false" },
-                { id: 24, type: "tf", q: "(True or False) Linked lists allow efficient insertion and deletion at any point.", a: "true" },
-
-                // --- Multiple Choice (25-38) ---
-                { id: 25, type: "mcq", q: "What are data structures used for?", opts: ["To compile programs", "To organize and store data efficiently", "To execute machine code", "To create new programming languages"], a: "To organize and store data efficiently" },
-                { id: 26, type: "mcq", q: "What is an algorithm?", opts: ["A programming language", "A step-by-step procedure to solve a problem", "A data storage method", "A type of software"], a: "A step-by-step procedure to solve a problem" },
-                { id: 27, type: "mcq", q: "What type of data structure is an array?", opts: ["Collection of different types", "Fixed-size collection of same type", "Random numbers", "Hierarchical structure"], a: "Fixed-size collection of same type" },
-                { id: 28, type: "mcq", q: "Which data structure is best suited for hierarchical data?", opts: ["Stack", "Queue", "Tree", "Array"], a: "Tree" },
-                { id: 29, type: "mcq", q: "What does a node in a linked list contain?", opts: ["Only data", "Only a pointer", "Data and a pointer to the next node", "Key-value pair"], a: "Data and a pointer to the next node" },
-                { id: 30, type: "mcq", q: "Which data structure is best for searching using keys?", opts: ["Array", "Linked list", "Hash map", "Stack"], a: "Hash map" },
-                { id: 31, type: "mcq", q: "What is the advantage of using a linked list over an array?", opts: ["Fast element access", "Easier insertion and deletion", "Less memory usage", "Fixed size"], a: "Easier insertion and deletion" },
-                { id: 32, type: "mcq", q: "Accessing an index beyond the array size causes:", opts: ["Null value", "IndexOutOfBounds error", "Loop back to first", "Auto add element"], a: "IndexOutOfBounds error" },
-                { id: 33, type: "mcq", q: "Which is NOT a feature of an array?", opts: ["Same data type", "Fixed size", "Can dynamically grow", "Fast lookup by index"], a: "Can dynamically grow" },
-                { id: 34, type: "mcq", q: "In a singly linked list, each node contains:", opts: ["Data only", "Prev pointer", "Next pointer", "Data and Next pointer"], a: "Data and Next pointer" },
-                { id: 35, type: "mcq", q: "Disadvantage of linked lists compared to arrays?", opts: ["Cannot store multiple types", "No dynamic allocation", "Uses more memory for pointers", "Has fixed size"], a: "Uses more memory for pointers" },
-                { id: 36, type: "mcq", q: "Which is NOT a benefit of a linked list?", opts: ["Easy insertion", "Easy deletion", "Efficient random access", "Flexible memory usage"], a: "Efficient random access" },
-                { id: 37, type: "mcq", q: "Primary purpose of a Hash Map?", opts: ["Sorting data", "Storing key-value pairs efficiently", "Managing file systems", "Implementing recursion"], a: "Storing key-value pairs efficiently" },
-                { id: 38, type: "mcq", q: "What happens during a collision in a Hash Map?", opts: ["New value replaces old", "Keys are ignored", "Collision needs handling", "Key is stored twice"], a: "Collision occurs and needs to be handled" },
-
-                // --- Scientific Terms (39-55) ---
-                { id: 39, type: "essay", q: "(Scientific Term) Way of organizing and storing data to perform operations effectively.", a: "Data Structures" },
-                { id: 40, type: "essay", q: "(Scientific Term) Step-by-step procedure to achieve a desired output.", a: "Algorithm" },
-                { id: 50, type: "essay", q: "(Scientific Term) Scenario where algorithm’s efficiency is affected by data structure choice.", a: "Optimization" },
-                { id: 51, type: "essay", q: "(Scientific Term) Ordered collection of elements accessible by index.", a: "Array" },
-                { id: 52, type: "essay", q: "(Scientific Term) Data structure consisting of nodes linked together.", a: "Linked List" },
-                { id: 53, type: "essay", q: "(Scientific Term) Key-value based data structure used for fast lookups.", a: "Hash Map" },
-                { id: 54, type: "essay", q: "(Scientific Term) A node's reference to the next node in a linked list.", a: "Pointer" },
-                { id: 55, type: "essay", q: "(Scientific Term) The process of arranging data in a specific order.", a: "Sorting" },
-
-                // --- Short Answer / Essay (58-70) ---
-                { id: 58, type: "essay", q: "(Short Answer) What is the primary purpose of data structures in programming?", a: "To organize and store data efficiently so that operations can be performed effectively." },
-                { id: 56.2, type: "essay", q: "(Short Answer) How do algorithms differ from data structures?", a: "Data structures store data, while algorithms are procedures used to process that data." },
-                { id: 59, type: "essay", q: "(Short Answer) What are the main types of data structures?", a: "Primitive (Integer, Float) and Abstract (Arrays, Linked Lists, Trees, etc)." },
-                { id: 60, type: "essay", q: "(Short Answer) Factors to consider when choosing a data structure?", a: "Data type, access speed, insertion speed, and data size." },
-                { id: 61, type: "essay", q: "(Short Answer) Give examples of DS in social media.", a: "Arrays for friends, Trees for hierarchy, Graphs for connections." },
-                { id: 62, type: "essay", q: "(Short Answer) Difference between Stack and Queue?", a: "Stack is LIFO, Queue is FIFO." },
-                { id: 63, type: "essay", q: "(Short Answer) What is an array and how does it work?", a: "Ordered collection where elements are accessed via unique numerical index." },
-                { id: 64, type: "essay", q: "(Short Answer) What is the last node in a linked list called?", a: "The null node." },
-                { id: 65, type: "essay", q: "(Short Answer) How does an array differ from a linked list?", a: "Arrays use contiguous memory; linked lists use nodes and pointers." },
-                { id: 66, type: "essay", q: "(Short Answer) Benefits of using arrays?", a: "Fast access, efficient handling of large datasets." },
-                { id: 67, type: "essay", q: "(Short Answer) Explain how a linked list works.", a: "Consists of nodes with data and pointers to the next node." },
-                { id: 68, type: "essay", q: "(Short Answer) What is a hash map?", a: "Data structure storing key-value pairs for fast retrieval." },
-                { id: 69, type: "essay", q: "(Short Answer) Main parts of a node?", a: "Data and pointer to the next node." },
-                { id: 70, type: "essay", q: "(Short Answer) Hash map vs Array retrieval?", a: "Hash maps use keys; arrays use numerical indexes." },
-
-                // --- Complete the Sentence (71-80) ---
-                { id: 71, type: "essay", q: "(Complete) Array elements are accessed through a unique [___] starting at zero.", a: "index" },
-                { id: 72, type: "essay", q: "(Complete) Arrays help to [___] data in an organized way.", a: "organize" },
-                { id: 73, type: "essay", q: "(Complete) The length of an array is [___] and can be changed.", a: "dynamic" },
-                { id: 74, type: "essay", q: "(Complete) A linked list consists of a collection of [___].", a: "nodes" },
-                { id: 75, type: "essay", q: "(Complete) The last node in a linked list is the [___] node.", a: "null" },
-                { id: 76, type: "essay", q: "(Complete) Linked lists allow easy [___] and deletion without shifting.", a: "addition" },
-                { id: 78, type: "essay", q: "(Complete) A Hash Map is best for storing [___] data.", a: "key-value" },
-                { id: 79, type: "essay", q: "(Complete) To delete from Hash Map in JS, use the [___] method.", a: "delete()" },
-                { id: 80, type: "essay", q: "(Complete) Each node contains a [___] to the next node.", a: "pointer" },
-
-                // --- Algorithms TF (81-89) ---
-                { id: 81, type: "tf", q: "(True or False) Selection sort places the smallest remaining element correctly.", a: "true" },
-                { id: 82, type: "tf", q: "(True or False) Bubble sort compares and swaps adjacent elements.", a: "true" },
-                { id: 83, type: "tf", q: "(True or False) Insertion sort inserts an element into its sorted portion.", a: "true" },
-                { id: 84, type: "tf", q: "(True or False) Sorting arranges in order, selection finds specific element.", a: "true" },
-                { id: 85, type: "tf", q: "(True or False) Bubble sort is most efficient for large datasets.", a: "false" },
-                { id: 86, type: "tf", q: "(True or False) Insertion sort is similar to sorting cards in hand.", a: "true" },
-                { id: 87, type: "tf", q: "(True or False) Selection sort compares every unsorted element with min.", a: "true" },
-                { id: 88, type: "tf", q: "(True or False) If sorted, bubble sort still performs comparisons.", a: "true" },
-                { id: 89, type: "tf", q: "(True or False) Sorting algorithms are only for numbers.", a: "false" },
-
-                // --- Algorithms MCQ (91-95) ---
-                { id: 91, type: "mcq", q: "Which algorithm compares and swaps adjacent elements?", opts: ["Selection", "Insertion", "Bubble", "Merge"], a: "Bubble" },
-                { id: 92, type: "mcq", q: "Which algorithm selects the smallest remaining element?", opts: ["Bubble", "Insertion", "Selection", "Quick"], a: "Selection" },
-                { id: 93, type: "mcq", q: "Primary goal of sorting?", opts: ["Find largest", "Search value", "Arrange in order", "Count elements"], a: "Arrange in order" },
-                { id: 94, type: "mcq", q: "Bubble sort name origin?", opts: ["Divides list", "Smaller elements 'bubble' up", "Algorithm speed", "List shape"], a: "Smaller elements 'bubble' up" },
-                { id: 95, type: "mcq", q: "In insertion sort, where is the 'key' placed?", opts: ["End", "Random", "Correct sorted position on left", "Beginning"], a: "Correct sorted position on left" },
-
-                // --- Algorithms Terms (96-100) ---
-                { id: 96, type: "essay", q: "(Scientific Term) Algorithm that swaps adjacent elements.", a: "Bubble Sort" },
-                { id: 97, type: "essay", q: "(Scientific Term) Algorithm that selects smallest remaining element.", a: "Selection Sort" },
-                { id: 98, type: "essay", q: "(Scientific Term) Algorithm that puts new items in right place in sorted part.", a: "Insertion Sort" },
-                { id: 99, type: "essay", q: "(Scientific Term) Arranging elements in specific order.", a: "Sorting" },
-                { id: 100, type: "essay", q: "(Scientific Term) Finding specific element in a collection.", a: "Selection" },
-
-                // --- Data Structures TF (101-125) ---
-                { id: 101, type: "tf", q: "(True or False) Stack follows LIFO principle.", a: "true" },
-                { id: 102, type: "tf", q: "(True or False) In stack, first added is first removed.", a: "false" },
-                { id: 103, type: "tf", q: "(True or False) Primary stack operations are push and pop.", a: "true" },
-                { id: 104, type: "tf", q: "(True or False) TOP in stack is initialized to 0 when empty.", a: "false" },
-                { id: 105, type: "tf", q: "(True or False) Queue uses LIFO principle.", a: "false" },
-                { id: 106, type: "tf", q: "(True or False) In queue, first enqueued is first dequeued.", a: "true" },
-                { id: 107, type: "tf", q: "(True or False) Enqueue and dequeue are for stacks.", a: "false" },
-                { id: 108, type: "tf", q: "(True or False) Queue uses FRONT and REAR pointers.", a: "true" },
-                { id: 109, type: "tf", q: "(True or False) Tree nodes can have multiple children.", a: "true" },
-                { id: 110, type: "tf", q: "(True or False) Root node is topmost node.", a: "true" },
-                { id: 111, type: "tf", q: "(True or False) Height is edges to deepest leaf.", a: "true" },
-                { id: 112, type: "tf", q: "(True or False) Depth is calculated from node to root.", a: "true" },
-                { id: 113, type: "tf", q: "(True or False) Edge represents connection between nodes.", a: "true" },
-                { id: 114, type: "tf", q: "(True or False) Forest is a collection of disjoint trees.", a: "true" },
-                { id: 115, type: "tf", q: "(True or False) Top node in binary tree is root.", a: "true" },
-                { id: 116, type: "tf", q: "(True or False) Binary tree node can only have one child.", a: "false" },
-                { id: 117, type: "tf", q: "(True or False) Graphs represent relationships between objects.", a: "true" },
-                { id: 118, type: "tf", q: "(True or False) In graphs, nodes are connected by edges.", a: "true" },
-                { id: 119, type: "tf", q: "(True or False) Binary search works on unsorted lists.", a: "false" },
-                { id: 120, type: "tf", q: "(True or False) Binary search cuts list in half each guess.", a: "true" },
-                { id: 121, type: "tf", q: "(True or False) Binary tree can organize family trees.", a: "true" },
-                { id: 122, type: "tf", q: "(True or False) Graph edges only go in one direction.", a: "false" },
-                { id: 123, type: "tf", q: "(True or False) Binary search is slower than linear search.", a: "false" },
-                { id: 124, type: "tf", q: "(True or False) Middle number in binary search is always answer.", a: "false" },
-                { id: 125, type: "tf", q: "(True or False) Graphs can represent social networks.", a: "true" },
-
-                // --- Final MCQ & Terms (126-150) ---
-                { id: 126, type: "mcq", q: "What is the top node in a binary tree?", opts: ["Leaf", "Root", "Branch", "Edge"], a: "Root" },
-                { id: 127, type: "mcq", q: "What is a graph made up of?", opts: ["Nodes and edges", "Roots and leaves", "Questions", "Numbers"], a: "Nodes and edges" },
-                { id: 128, type: "mcq", q: "Nodes in a graph with no connections:", opts: ["Roots", "Leaves", "Isolated nodes", "Branches"], a: "Isolated nodes" },
-                { id: 129, type: "mcq", q: "Required for binary search to work?", opts: ["Unsorted list", "Sorted list", "Random list", "Empty list"], a: "Sorted list" },
-                { id: 130, type: "mcq", q: "Nodes with no children in binary tree:", opts: ["Roots", "Leaves", "Branches", "Edges"], a: "Leaves" },
-                { id: 131, type: "mcq", q: "First step in binary search?", opts: ["Guess first", "Guess last", "Guess middle", "Sort list"], a: "Guess middle" },
-                { id: 132, type: "mcq", q: "Example of a graph:", opts: ["Family tree", "Road map", "Binary tree", "Guessing game"], a: "Road map" },
-                { id: 133, type: "essay", q: "(Scientific Term) DS operating on LIFO principle.", a: "Stack" },
-                { id: 134, type: "essay", q: "(Scientific Term) Stack operation to add element.", a: "Push" },
-                { id: 135, type: "essay", q: "(Scientific Term) Stack operation to remove top element.", a: "Pop" },
-                { id: 136, type: "essay", q: "(Scientific Term) Principle of removal in a stack.", a: "LIFO" },
-                { id: 137, type: "essay", q: "(Scientific Term) DS where first added is first removed.", a: "Queue" },
-                { id: 138, type: "essay", q: "(Scientific Term) Adding element to end of queue.", a: "Enqueue" },
-                { id: 139, type: "essay", q: "(Scientific Term) Removing from front of queue.", a: "Dequeue" },
-                { id: 140, type: "essay", q: "(Scientific Term) Pointer tracking front of queue.", a: "FRONT" },
-                { id: 141, type: "essay", q: "(Scientific Term) Pointer tracking last element in queue.", a: "REAR" },
-                { id: 142, type: "essay", q: "(Scientific Term) Hierarchical DS of nodes and edges.", a: "Tree" },
-                { id: 143, type: "essay", q: "(Scientific Term) Topmost node in a tree.", a: "Root" },
-                { id: 144, type: "essay", q: "(Scientific Term) Node with no children.", a: "Leaf" },
-                { id: 145, type: "essay", q: "(Scientific Term) Longest path from node to leaf.", a: "Height" },
-                { id: 146, type: "essay", q: "(Scientific Term) Edges from root to specific node.", a: "Depth" },
-                { id: 147, type: "essay", q: "(Scientific Term) Tree where each node has max two children.", a: "Binary Tree" },
-                { id: 148, type: "essay", q: "(Scientific Term) Collection of disjoint trees.", a: "Forest" },
-                { id: 149, type: "essay", q: "(Scientific Term) Connection between nodes in a tree.", a: "Edge" },
-                { id: 150, type: "essay", q: "(Scientific Term) Viewing top stack element without removing.", a: "Peek" }
-            ],
-            "9": [
-                { id: 1, type: "tf", q: "(True or False) Artificial Intelligence is a system designed to think exactly like a human mind.", a: "false" },
-                { id: 2, type: "tf", q: "(True or False) The confidence score shows how strongly the AI believes in its prediction.", a: "true" },
-                { id: 3, type: "tf", q: "(True or False) A digital image is a grid of tiny squares called pixels.", a: "true" },
-                { id: 4, type: "tf", q: "(True or False) Image classification assigns a single label to an entire image.", a: "true" },
-                { id: 5, type: "tf", q: "(True or False) Face detection and face recognition are the same task.", a: "false" },
-                { id: 6, type: "tf", q: "(True or False) A false positive in a face unlock system means the system let in an unauthorized person.", a: "true" },
-                { id: 7, type: "tf", q: "(True or False) Background noise does not affect speech recognition accuracy.", a: "false" },
-                { id: 8, type: "tf", q: "(True or False) Language models generate responses by predicting the most likely next word.", a: "true" },
-                { id: 9, type: "tf", q: "(True or False) Real-time systems require processing input and producing output instantly.", a: "true" },
-                { id: 10, type: "tf", q: "(True or False) If one keypoint is incorrect, it can affect the detection of connected joints.", a: "true" },
-
-                // --- Multiple Choice (11-18) ---
-                { id: 11, type: "mcq", q: "What is the main difference between AI and traditional software?", opts: ["AI uses more electricity", "AI learns patterns from data, while traditional software follows fixed rules", "Traditional software is faster", "AI is always correct"], a: "AI learns patterns from data, while traditional software follows fixed rules" },
-                { id: 12, type: "mcq", q: "What does an AI model output when it analyzes an image?", opts: ["A guaranteed answer", "A prediction with a confidence score", "A random guess", "The name of the person who took the image"], a: "A prediction with a confidence score" },
-                { id: 13, type: "mcq", q: "Which of the following is an example of a correlation, not causation?", opts: ["Rain causes wet ground", "A fire causes smoke", "Ice cream sales and hot weather increase together", "Pressing a light switch turns on a bulb"], a: "Ice cream sales and hot weather increase together" },
-                { id: 14, type: "mcq", q: "What does a confidence score of 95% mean?", opts: ["The answer is 95% wrong", "The answer is guaranteed to be correct", "The AI is 95% sure about its prediction", "The AI has no idea what the object is"], a: "The AI is 95% sure about its prediction" },
-                { id: 15, type: "mcq", q: "What is a pixel?", opts: ["A color in the image", "A tiny square that holds a numeric value for brightness or color", "The shape of an object", "The name of an AI model"], a: "A tiny square that holds a numeric value for brightness or color" },
-                { id: 16, type: "mcq", q: "Which task answers the question 'What objects are in this image, and where are they?'", opts: ["Image Classification", "Object Detection", "Face Recognition", "Pose Estimation"], a: "Object Detection" },
-                { id: 17, type: "mcq", q: "A bounding box is used to:", opts: ["Draw a rectangle around a detected object", "Label the entire image", "Show the confidence score", "Remove noise from the image"], a: "Draw a rectangle around a detected object" },
-                { id: 18, type: "mcq", q: "Which task is about finding the location of a face in an image?", opts: ["Face Recognition", "Face Detection", "Face Verification", "Face Identification"], a: "Face Detection" },
-
-                // --- Short Answer / Essay (19-60) ---
-                { id: 19, type: "essay", q: "Define Artificial Intelligence in your own words.", a: "AI is a system that can learn from data and make predictions, rather than just following fixed rules." },
-                { id: 20, type: "essay", q: "What is the main difference between a traditional program and an AI system?", a: "A traditional program follows fixed rules written by a programmer, while an AI learns patterns from data." },
-                { id: 21, type: "essay", q: "List the five steps of how AI answers an input (Image or Data).", a: "1. Input, 2. Processing, 3. Pattern Recognition, 4. Prediction, 5. Output." },
-                { id: 22, type: "essay", q: "Define the term 'correlation'.", a: "Correlation is when two things appear together frequently in data, but it doesn't mean one causes the other." },
-                { id: 23, type: "essay", q: "Give an example of a correlation that is not a direct cause.", a: "Ice cream sales and hot weather increase together." },
-                { id: 24, type: "essay", q: "What is a confidence score in AI?", a: "A percentage that shows how strongly the AI believes in its prediction." },
-                { id: 25, type: "essay", q: "Mention the three types of AI.", a: "Artificial Narrow Intelligence (ANI), Artificial General Intelligence (AGI), and Artificial Super Intelligence (ASI)." },
-                { id: 26, type: "essay", q: "List the main components of the Core AI Learning Workflow.", a: "Data, Training, Model, Prediction." },
-                { id: 27, type: "essay", q: "Define 'overfitting'.", a: "Overfitting occurs when a model learns the training data too specifically, memorizing details and noise, so it fails on new data." },
-                { id: 28, type: "essay", q: "Define 'underfitting'.", a: "Underfitting happens when a model is too simple to capture the meaningful patterns in the data." },
-                { id: 29, type: "essay", q: "What is the difference between a false positive and a false negative?", a: "A false positive is when the system says 'yes' but the answer is 'no.' A false negative is when the system says 'no' but the answer is 'yes.'" },
-                { id: 30, type: "essay", q: "What is the function of validation data?", a: "Validation data is used to test a model's performance on new, unseen data to ensure it has learned general patterns and not just memorized the training data." },
-                { id: 31, type: "essay", q: "Mention the two main stages of machine learning.", a: "Training and Prediction (Inference)." },
-                { id: 32, type: "essay", q: "What is the 'Black Box Problem'?", a: "It's the difficulty of understanding exactly how an AI system arrives at a decision because of its internal complexity." },
-                { id: 33, type: "essay", q: "What is the main cause of a model underfitting?", a: "The model is too simple or hasn't been trained on enough data to capture the patterns." },
-                { id: 34, type: "essay", q: "List the three main types of machine learning.", a: "Supervised Learning, Unsupervised Learning, Reinforcement Learning." },
-                { id: 35, type: "essay", q: "What is the difference between training and prediction (inference)?", a: "During training, the model learns by adjusting its parameters. During prediction, the model uses its learned parameters to make decisions on new data." },
-                { id: 36, type: "essay", q: "What is a digital image composed of?", a: "A digital image is composed of a grid of tiny squares called pixels, each containing a numeric value." },
-                { id: 37, type: "essay", q: "Define 'pixel'.", a: "A pixel is the smallest unit of a digital image, which holds a number representing brightness or color." },
-                { id: 38, type: "essay", q: "In a grayscale image, what does a pixel value of 255 represent?", a: "white" },
-                { id: 39, type: "essay", q: "What are the three color channels in a digital image?", a: "Red, Green, and Blue (RGB)." },
-                { id: 40, type: "essay", q: "List the main tasks of a Computer Vision system mentioned in the lesson.", a: "Image Classification, Object Detection, Face Detection/Recognition, Pose Estimation." },
-                { id: 41, type: "essay", q: "What is the purpose of image classification?", a: "To assign one label to an entire image." },
-                { id: 42, type: "essay", q: "How does object detection differ from image classification?", a: "Object detection identifies multiple objects and their locations (using bounding boxes), while classification gives one label for the whole image." },
-                { id: 43, type: "essay", q: "Define 'bounding box'.", a: "A rectangle drawn around a detected object to show its location." },
-                { id: 44, type: "essay", q: "Give an example of a vision failure case.", a: "Motion blur, occlusion, or poor lighting that causes the AI to misclassify an object." },
-                { id: 45, type: "essay", q: "What is the semantic gap?", a: "The difference between the raw numeric data (pixels) that an AI processes and the human understanding of an image's meaning." },
-                { id: 46, type: "essay", q: "Define 'occlusion'.", a: "When part of an object is blocked or hidden from view." },
-                { id: 47, type: "essay", q: "What is the function of bounding boxes in object detection?", a: "To localize where an object is within an image." },
-                { id: 48, type: "essay", q: "Define the difference between face detection and face recognition.", a: "Face detection finds the location of a face, while face recognition identifies whose face it is." },
-                { id: 49, type: "essay", q: "What is the purpose of face detection?", a: "To determine if there is a face in an image and where it is located." },
-                { id: 50, type: "essay", q: "What is the function of facial landmarks?", a: "They are specific key points on the face (like eyes, nose, mouth) that help describe its structure." },
-                { id: 51, type: "essay", q: "List the two main modes of face recognition.", a: "Verification (1:1) and Identification (1:N)." },
-                { id: 52, type: "essay", q: "What is a false positive in a face unlock system?", a: "The system grants access to someone who is not authorized." },
-                { id: 53, type: "essay", q: "Mention the two main error types in AI systems.", a: "False Positive and False Negative." },
-                { id: 54, type: "essay", q: "What is a false negative in a face unlock system?", a: "The system denies access to the authorized user." },
-                { id: 55, type: "essay", q: "What is a threshold in a face recognition system?", a: "A chosen confidence level that decides whether the system accepts or rejects a match." },
-                { id: 56, type: "essay", q: "What is the main cause of bias in AI?", a: "Bias is usually a data problem, caused by training data that is incomplete, unbalanced, or not representative of the real world." },
-                { id: 57, type: "essay", q: "What is a spoofing attack?", a: "An attempt to trick a face recognition system, for example, by using a printed photo or a mask." },
-                { id: 58, type: "essay", q: "Define 'liveness detection'.", a: "A technology used to check if a face is from a real, live person (e.g., by asking the user to blink) and not a spoof." },
-                { id: 59, type: "essay", q: "What is the purpose of alignment in face recognition?", a: "To standardize a face (rotate, scale, center) so that the system compares normalized faces and not camera angles or positions." },
-                { id: 60, type: "essay", q: "What is the difference between verification and identification?", a: "Verification is a 1:1 comparison (is this you?), while identification is a 1:N comparison (who is this?)." },
-
-                // --- TPKA2: Design AI (61-66 TF) ---
-                { id: 61, type: "tf", q: "(True or False) In traditional software, the same input always produces the same output.", a: "true" },
-                { id: 62, type: "tf", q: "(True or False) The 'Black Box Problem' refers to the difficulty of explaining how an AI makes a decision.", a: "true" },
-                { id: 63, type: "tf", q: "(True or False) In a grayscale image, a pixel value of 255 represents black.", a: "false" },
-                { id: 64, type: "tf", q: "(True or False) Higher resolution images always lead to faster processing for AI models.", a: "false" },
-                { id: 65, type: "tf", q: "(True or False) Latency is the time delay between an action and the system's response.", a: "true" },
-                { id: 66, type: "tf", q: "(True or False) OCR works best when there is high contrast between the text and its background.", a: "true" },
-
-                // --- TPKA2: MCQ (67-76) ---
-                { id: 67, type: "mcq", q: "In a grayscale image, what does a pixel value of 0 represent?", opts: ["White", "Black", "Gray", "Red"], a: "Black" },
-                { id: 68, type: "mcq", q: "In face recognition, what is an embedding?", opts: ["A picture of a face", "A numerical vector that represents a face", "A bounding box around a face", "The confidence score"], a: "A numerical vector that represents a face" },
-                { id: 69, type: "mcq", q: "Which process compares one live face to one stored reference?", opts: ["Identification (1:N)", "Classification", "Verification (1:1)", "Detection"], a: "Verification (1:1)" },
-                { id: 70, type: "mcq", q: "What is the purpose of liveness detection?", opts: ["To increase confidence scores", "To detect if a face is from a real person or a spoof (like a photo)", "To improve image resolution", "To make the AI faster"], a: "To detect if a face is from a real person or a spoof (like a photo)" },
-                { id: 71, type: "mcq", q: "What is 'latency' in a real-time system?", opts: ["The speed of the internet connection", "The number of frames per second", "The delay between an action and the system's response", "The accuracy of the prediction"], a: "The delay between an action and the system's response" },
-                { id: 72, type: "mcq", q: "What does NLP stand for?", opts: ["Neural Language Programming", "Natural Language Processing", "Numeric Linguistic Protocol", "Non-linear Prediction"], a: "Natural Language Processing" },
-                { id: 73, type: "mcq", q: "What is the main function of Optical Character Recognition (OCR)?", opts: ["To convert images of characters into digital text", "To understand the meaning of a sentence", "To convert spoken words into text", "To recognize faces in an image"], a: "To convert images of characters into digital text" },
-                { id: 74, type: "mcq", q: "Why can speech recognition fail in a noisy room?", opts: ["Because the AI stops listening", "Because noise distorts the sound patterns the AI is trained on", "Because the AI only understands text", "Because the microphone turns off"], a: "Because noise distorts the sound patterns the AI is trained on" },
-                { id: 75, type: "mcq", q: "Which type of AI is designed to perform one specific task only?", opts: ["Artificial General Intelligence (AGI)", "Artificial Super Intelligence (ASI)", "Artificial Narrow Intelligence (ANI)", "All of the above"], a: "Artificial Narrow Intelligence (ANI)" },
-                { id: 76, type: "mcq", q: "What is the first step in the AI learning workflow?", opts: ["Prediction", "Data (Training Data)", "Model", "Output"], a: "Data (Training Data)" },
-
-                // --- Short Answer Group 5 (77-96) ---
-                { id: 77, type: "essay", q: "Define pose estimation.", a: "The process of detecting key points on the human body (like joints) and connecting them to form a skeletal structure." },
-                { id: 78, type: "essay", q: "What is a keypoint in pose estimation?", a: "A coordinate point on the body that represents a joint, such as a shoulder, elbow, or knee." },
-                { id: 79, type: "essay", q: "List some of the keypoints detected by a pose estimation system.", a: "Nose, shoulders, elbows, wrists, hips, knees, ankles." },
-                { id: 80, type: "essay", q: "How is the human body modeled in pose estimation?", a: "As a graph, where nodes are keypoints and edges are the connections between them." },
-                { id: 81, type: "essay", q: "What is the difference between a static pose and a dynamic gesture?", a: "A static pose is one frame of body coordinates, while a dynamic gesture is a pattern across multiple frames." },
-                { id: 82, type: "essay", q: "What is 'temporal consistency' in gesture recognition?", a: "The requirement that a gesture's movement pattern must be detected across several consecutive frames to be confirmed." },
-                { id: 83, type: "essay", q: "Define 'latency' in a real-time system.", a: "The delay between an action (like a gesture) and the system's response." },
-                { id: 84, type: "essay", q: "Define 'dropped frames' and their effect on gesture recognition.", a: "Dropped frames are skipped images. They can break the temporal sequence needed to recognize a gesture, causing a false negative." },
-                { id: 85, type: "essay", q: "What is the difference between spatial and temporal instability?", a: "Spatial instability is jitter in a single frame's keypoints. Temporal instability is inconsistency in keypoints from frame to frame." },
-                { id: 86, type: "essay", q: "Define speech recognition.", a: "The technology that converts spoken language into written text." },
-                { id: 87, type: "essay", q: "What is the main function of OCR (Optical Character Recognition)?", a: "To convert images of text (printed or handwritten) into digital, machine-readable text." },
-                { id: 88, type: "essay", q: "What is OCR stands for?", a: "Optical Character Recognition" },
-                { id: 89, type: "essay", q: "Define NLP (Natural Language Processing).", a: "The field of AI that allows computers to work with, interpret, and approximate meaning from human language" },
-                { id: 90, type: "essay", q: "List the typical steps a voice assistant follows.", a: "1. Speech Recognition, 2. Natural Language Processing (NLP), 3. System Action." },
-                { id: 91, type: "essay", q: "Why is speech recognition affected by background noise?", a: "Background noise distorts the sound patterns that the AI has learned to recognize, making it harder to match the audio to the correct words." },
-                { id: 92, type: "essay", q: "How does OCR interpret an image of text?", a: "It detects shapes (clusters of pixels) and matches them to learned character patterns (like letters or numbers)." },
-                { id: 93, type: "essay", q: "Provide one example that shows a limitation of NLP systems.", a: "An NLP system may misunderstand a rare or unusual phrasing of a command because it hasn't seen that pattern in its training data." },
-                { id: 94, type: "essay", q: "What is the purpose of tokenization in NLP?", a: "To break down a sentence into smaller, processable units (like words or parts of words) so the computer can analyze them." },
-                { id: 95, type: "essay", q: "What is the main cause of OCR errors?", a: "Poor image quality, such as low contrast, blurriness, unusual fonts, or poor lighting, which makes it hard to distinguish characters." },
-                { id: 96, type: "essay", q: "What is the function of confidence scores in speech recognition?", a: "To show how likely the system thinks its transcribed words are correct, based on the sound patterns it detected." },
-
-                // --- Comparison Group 6 (97-113) ---
-                { id: 97, type: "essay", q: "Compare traditional software and artificial intelligence.", a: "Traditional software follows fixed rules written by a programmer, while AI learns patterns from data." },
-                { id: 98, type: "essay", q: "Compare correlation and causation.", a: "Correlation means two things appear together frequently; causation means one thing directly causes another." },
-                { id: 99, type: "essay", q: "Compare automation and intelligence.", a: "Automation follows fixed rules (deterministic), while intelligence learns from data and adapts (probabilistic)." },
-                { id: 100, type: "essay", q: "Compare training and prediction (inference).", a: "Training is when the system learns from data; prediction is when the system uses what it learned." },
-                { id: 101, type: "essay", q: "Compare overfitting and underfitting.", a: "Overfitting is when a model learns training data too specifically; underfitting is when a model is too simple to learn patterns." },
-                { id: 102, type: "essay", q: "Compare a false positive and a false negative.", a: "A false positive says 'yes' when the answer is 'no'; a false negative says 'no' when the answer is 'yes.'" },
-                { id: 103, type: "essay", q: "Compare supervised learning and unsupervised learning.", a: "Supervised learning uses labeled data (with answers); unsupervised learning uses unlabeled data (finds patterns on its own)." },
-                { id: 104, type: "essay", q: "Compare Narrow AI (ANI) and General AI (AGI).", a: "Narrow AI performs one specific task; General AI can perform many different tasks like a human (does not exist yet)." },
-                { id: 105, type: "essay", q: "Compare how humans see images and how AI sees images.", a: "Humans see meaning, colors, and objects; AI sees a grid of numbers (pixels) representing brightness and color." },
-                { id: 106, type: "essay", q: "Compare a color image and a grayscale image in terms of data.", a: "A color image has three matrices (RGB channels); a grayscale image has one matrix (brightness only)." },
-                { id: 107, type: "essay", q: "Compare image classification and object detection.", a: "Classification assigns one label to the whole image; detection finds multiple objects and their locations with bounding boxes." },
-                { id: 108, type: "essay", q: "Compare high-resolution and low-resolution images for AI processing.", a: "High-resolution images have more detail but take more computation; low-resolution images are faster but may lose important details." },
-                { id: 109, type: "essay", q: "Compare face detection and face recognition.", a: "Face detection finds where a face is; face recognition identifies whose face it is." },
-                { id: 110, type: "essay", q: "Compare pose estimation and face detection.", a: "Pose estimation detects body keypoints (shoulders, knees); face detection only finds faces." },
-                { id: 111, type: "essay", q: "Compare speech recognition and OCR.", a: "Speech recognition converts sound to text; OCR converts images of text to digital text." },
-                { id: 112, type: "essay", q: "Compare a rule-based chatbot and an AI-based conversational system.", a: "Rule-based follows fixed scripts; AI-based generates responses using probability." },
-                { id: 113, type: "essay", q: "Compare a speech recognition system in a quiet room and in a noisy room.", a: "Quiet room gives high accuracy; noisy room may cause errors due to distorted sound patterns." }],
-            "12": [
-                // أسئلة يونت 12
-            ]
-        };
-
+        const POINT_SYSTEM = { tf: 1, mcq: 1, essay: 1 };
+        let unitsQuestions = [];
         let currentSubset = [];
         let examFinished = false;
         let tabSwitchCount = 0;
         const ANS_KEY = 'exam_ans_storage';
         const Q_KEY = 'exam_questions_storage';
 
-        // --- منع السكرين شوت والتبديل ---
-        window.addEventListener('keydown', (e) => {
-            if (e.key === "PrintScreen") {
-                showToast("📸 Screenshots are strictly prohibited!", "bg-red-600");
-                navigator.clipboard.writeText("");
-            }
-        });
+        // --- نظام الدروس الثابت ---
+        const LESSON_RANGES = {
+            1: { start: 0, end: 50 },
+            2: { start: 50, end: 100 },
+            3: { start: 100, end: 150 },
+            4: { start: 150, end: 200 },
+            5: { start: 200, end: 250 }
+        };
 
-        window.addEventListener('blur', () => {
-            if (examFinished) return;
-            tabSwitchCount++;
-            if (tabSwitchCount === 1) {
-                showToast("⚠️ Warning! First violation. Don't leave the page.", "bg-orange-600");
-            } else if (tabSwitchCount >= 2) {
-                submitQuiz();
-                showToast("🚫 Auto-submitted due to page exit.", "bg-red-700");
-            }
-        });
+        // منع الخروج بالخطأ
+        window.onbeforeunload = function () {
+            if (!examFinished) return "Are you sure you want to leave the exam?";
+        };
 
-        // --- نظام الأسئلة والتخزين ---
-        function initExam(isNew = false) {
-            // 1. جلب رقم الوحدة الحالي اللي الطالب اختاره
-            const unitNum = localStorage.getItem('unitNumber') || "14";
-            const unitData = unitsQuestions[unitNum] || [];
+       function initExam() {
+            const unitNum = localStorage.getItem('unitNumber') || "14"; 
+            document.getElementById('quiz-container').innerHTML = "<p class='text-center text-gray-500 font-bold'>Loading Questions...</p>";
 
-            // 2. جلب رقم الوحدة اللي كان متسيف في الأسئلة القديمة
-            const savedQuestions = localStorage.getItem(Q_KEY);
-            let savedUnit = null;
-            if (savedQuestions) {
-                const parsed = JSON.parse(savedQuestions);
-                // بنفترض إن كل الأسئلة في الـ Storage من نفس الوحدة، فنشوف أول سؤال
-                // ملاحظة: لازم نتأكد إن الأسئلة فيها رقم الوحدة أو نمسح لو مفيش تطابق
-            }
+            const script = document.createElement('script');
+            script.src = `./QuestionBank_unit${unitNum}.js`; 
+            
+            script.onload = function() {
+                try {
+                    if (typeof allQuestionsData === 'undefined') throw new Error("Data Error");
+                    unitsQuestions = allQuestionsData; 
+                    generateSet(); // دالة جديدة عشان تختار الأسئلة عشوائي
+                } catch (error) {
+                    showErrorUI(unitNum, error.message);
+                }
+            };
+            script.onerror = () => showErrorUI(unitNum, "File not found");
+            document.head.appendChild(script);
+        }
 
-            // 3. المنطق الذكي: لو طلب أسئلة جديدة، أو مفيش أسئلة، أو "المستوى اتغير"
-            // ضفنا شرط: لو الـ unitNum الحالي مختلف عن اللي الطالب دخله قبل كده
-            const lastUnit = localStorage.getItem('last_unit_entered');
-
-            if (isNew || !savedQuestions || lastUnit !== unitNum) {
-                // مسح كل حاجة قديمة لأننا غيرنا الوحدة أو المستوى
-                localStorage.removeItem(Q_KEY);
-                localStorage.removeItem(ANS_KEY);
-
-                // خلط واختيار 20 سؤال جديد من الوحدة الجديدة
-                currentSubset = [...unitData].sort(() => 0.5 - Math.random()).slice(0, 20);
-
-                // حفظ الأسئلة الجديدة وحفظ رقم الوحدة الحالي عشان المرة الجاية نعرف لو اتغير
-                localStorage.setItem(Q_KEY, JSON.stringify(currentSubset));
-                localStorage.setItem('last_unit_entered', unitNum);
-            } else {
-                // لو لسه في نفس الوحدة، حمل الأسئلة القديمة عادي عشان لو عمل Refresh
-                currentSubset = JSON.parse(savedQuestions);
-            }
-
-            renderUI();
+        function showErrorUI(num, msg) {
+            document.getElementById('quiz-container').innerHTML = 
+                `<div class='text-center p-10 bg-red-50 rounded-2xl border-2 border-red-200'>
+                    <p class='font-bold text-red-500 text-xl mb-2'>⚠️ Error Loading Questions</p>
+                    <p class='text-gray-700'>Unit Number: <span class='font-bold'>${num}</span></p>
+                    <p class='text-sm text-gray-500 mt-2'>Reason: ${msg}</p>
+                    <button onclick="location.reload()" class="mt-4 bg-red-500 text-white px-6 py-2 rounded-lg text-sm">Retry</button>
+                </div>`;
         }
 
         function renderUI() {
+            // ضيفي السطر ده:
+            currentSubset.forEach(q => q.userAns = "");
             const container = document.getElementById('quiz-container');
             container.innerHTML = '';
-            const savedAnswers = JSON.parse(localStorage.getItem(ANS_KEY) || "{}");
-
             currentSubset.forEach((q, i) => {
                 const div = document.createElement('div');
                 div.id = `q-block-${i}`;
                 div.className = "card p-8 mb-6";
-                let savedVal = savedAnswers[i] || "";
-
-                let html = `<div class="flex justify-between items-center mb-6">
-                    <span class="text-[10px] font-black uppercase text-gray-400">Q ${i + 1} • ${q.type.toUpperCase()}</span>
-                    <span id="pts-${i}" class="text-xs font-bold text-we-purple bg-purple-50 px-4 py-1.5 rounded-full uppercase">Pts: ${POINT_SYSTEM[q.type]}</span>
-                </div><h3 class="text-xl font-bold mb-6">${q.q}</h3>`;
+                let html = `
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-[10px] font-black uppercase text-gray-400">Question ${i + 1}</span>
+                        <span id="pts-${i}" class="text-xs font-bold text-we-purple bg-purple-50 px-4 py-1.5 rounded-full uppercase">Pts: ${POINT_SYSTEM[q.type]}</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-6">${q.q}</h3>`;
 
                 if (q.type === 'tf') {
                     html += `<div class="grid grid-cols-2 gap-4">
-                        <button onclick="saveAnswer(${i}, 'true', this)" class="tf-btn ${savedVal === 'true' ? 'selected-true' : ''}">True</button>
-                        <button onclick="saveAnswer(${i}, 'false', this)" class="tf-btn ${savedVal === 'false' ? 'selected-false' : ''}">False</button>
+                        <button onclick="saveAnswer(${i}, 'true', this)" class="tf-btn">True</button>
+                        <button onclick="saveAnswer(${i}, 'false', this)" class="tf-btn">False</button>
                     </div>`;
                 } else if (q.type === 'mcq') {
                     html += `<div class="space-y-3">
-                        ${q.opts.map(o => `<button onclick="saveAnswer(${i}, '${o}', this)" class="tf-btn text-left px-6 ${savedVal === o ? 'mcq-selected' : ''}">${o}</button>`).join('')}
+                        ${q.opts.map(o => `<button onclick="saveAnswer(${i}, '${o}', this)" class="tf-btn text-left px-6">${o}</button>`).join('')}
                     </div>`;
                 } else {
-                    html += `<textarea oninput="saveAnswer(${i}, this.value)" class="input-box h-32" placeholder="Write your answer...">${savedVal}</textarea>`;
+                    html += `<textarea oninput="saveAnswer(${i}, this.value)" class="input-box h-32" placeholder="Explain your answer here..."></textarea>`;
                 }
-                html += `<div id="err-${i}" class="mt-4 p-4 rounded-xl bg-red-100 text-red-700 text-sm font-bold hidden"></div>`;
+                html += `<div id="err-${i}" class="mt-4 p-4 rounded-xl bg-slate-100 text-slate-700 text-sm hidden"></div>`;
                 div.innerHTML = html;
                 container.appendChild(div);
             });
-            updateProgress();
             document.getElementById('submit-area').classList.remove('hidden');
         }
 
         function saveAnswer(idx, val, btn) {
             if (examFinished) return;
-            let saved = JSON.parse(localStorage.getItem(ANS_KEY) || "{}");
-            saved[idx] = val;
-            localStorage.setItem(ANS_KEY, JSON.stringify(saved));
+            currentSubset[idx].userAns = val;
             if (btn && btn.tagName === 'BUTTON') {
-                const p = btn.parentElement;
-                p.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected-true', 'selected-false', 'mcq-selected'));
+                btn.parentElement.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected-true', 'selected-false', 'mcq-selected'));
                 if (val === 'true') btn.classList.add('selected-true');
                 else if (val === 'false') btn.classList.add('selected-false');
                 else btn.classList.add('mcq-selected');
@@ -611,103 +290,113 @@
         }
 
         function updateProgress() {
-            const saved = JSON.parse(localStorage.getItem(ANS_KEY) || "{}");
-            const count = Object.keys(saved).length;
-            const percent = (count / currentSubset.length) * 100;
+            const answered = currentSubset.filter(q => q.userAns).length;
+            const percent = (answered / currentSubset.length) * 100;
             document.getElementById('progress-bar').style.width = percent + "%";
-            document.getElementById('progress-text').innerText = `Answered: ${count}/${currentSubset.length}`;
+            document.getElementById('progress-text').innerText = `Answered: ${answered}/${currentSubset.length}`;
         }
 
-        // --- التصحيح الذكي ---
+        function confirmSubmit() {
+            // لو الامتحان خلصان أصلاً، افتح النتيجة فوراً بدل التأكيد
+            if (examFinished) {
+                document.getElementById('result-modal').classList.remove('hidden');
+                return;
+            }
+            
+            if (confirm("Are you sure you want to submit? You won't be able to change answers.")) {
+                submitQuiz();
+            }
+        }
+
         function submitQuiz() {
             if (examFinished) return;
             examFinished = true;
             let totalEarned = 0;
             let maxPoints = 0;
-            const saved = JSON.parse(localStorage.getItem(ANS_KEY) || "{}");
 
             currentSubset.forEach((q, i) => {
-                const userVal = (saved[i] || "").trim();
-                const block = document.getElementById(`q-block-${i}`);
+                const userVal = q.userAns || "";
                 const fullPts = POINT_SYSTEM[q.type];
                 maxPoints += fullPts;
                 let score = 0;
 
                 if (q.type === 'essay') {
-                    // Logic مقارنة النصوص (string-similarity)
                     score = calculateEssayScore(userVal, q.a, q.syns || {}, fullPts);
                 } else {
                     score = (userVal.toLowerCase() === q.a.toLowerCase()) ? fullPts : 0;
                 }
 
                 totalEarned += score;
-                styleFeedback(block, score, fullPts, i, q.a);
+                styleFeedback(i, score, fullPts, q.a);
             });
 
-            const finalPercent = (totalEarned / maxPoints) * 100;
-            showResults(Math.round(finalPercent), totalEarned, maxPoints);
-            localStorage.removeItem(ANS_KEY); // مسح بعد التسليم
+            document.getElementById('final-score-points').innerText = `${totalEarned} / ${maxPoints}`;
+            document.getElementById('result-modal').classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
         function calculateEssayScore(user, correct, syns, max) {
             if (!user) return 0;
-            // تبسيط خوارزمية التشابه للنصوص
             let u = user.toLowerCase();
             let c = correct.toLowerCase();
-            // استبدال المرادفات
             for (let s in syns) { syns[s].forEach(word => u = u.replace(word, s)); }
-
             let intersect = u.split(' ').filter(w => c.includes(w)).length;
             let ratio = intersect / c.split(' ').length;
-
-            if (ratio >= 0.75) return max;
-            if (ratio >= 0.50) return max * 0.75;
-            if (ratio >= 0.30) return max * 0.5;
-            if (ratio >= 0.15) return max * 0.25;
+            if (ratio >= 0.7) return max;
+            if (ratio >= 0.4) return max * 0.5;
             return 0;
         }
 
-        function styleFeedback(block, score, full, i, correctA) {
-            const ptsLabel = document.getElementById(`pts-${i}`);
+        function styleFeedback(i, score, full, correctA) {
+            const block = document.getElementById(`q-block-${i}`);
             const err = document.getElementById(`err-${i}`);
+
             if (score === full) block.classList.add('correct-card');
             else if (score > 0) block.classList.add('partial-card');
             else block.classList.add('wrong-card');
 
-            ptsLabel.innerText = `Score: ${score}/${full}`;
-            if (score < full) {
-                err.innerText = `Correct Answer: ${correctA}`;
-                err.classList.remove('hidden');
-            }
+            err.innerHTML = `<b>Correct Answer:</b> ${correctA}`;
+            err.classList.remove('hidden');
             block.querySelectorAll('button, textarea').forEach(el => el.disabled = true);
+            document.getElementById('main-submit-btn').innerText = "Show Result Summary";
         }
 
-        function showResults(percent, earned, max) {
-            document.getElementById('final-score-percent').innerText = percent + "%";
-            document.getElementById('score-summary').innerText = `Total Score: ${earned} / ${max} Points`;
-            document.getElementById('result-modal').classList.remove('hidden');
-        }
-
-        // --- أزرار المودال الجديدة ---
         function reviewOnly() {
             document.getElementById('result-modal').classList.add('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        function restartExam(isNew) {
-            if (isNew) localStorage.removeItem(Q_KEY);
-            location.reload();
+       function showToast(msg, bgColor) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.className = `toast font-bold ${bgColor}`;
+            toast.style.display = 'block';
         }
+        // الحماية من تبديل التاب
 
-        function showToast(msg, colorClass) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = `toast font-bold ${colorClass}`;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 4000);
+        window.onload = initExam;
+        
+       function generateSet() {
+            examFinished = false;
+            // تصفير شريط التقدم ورجوع الزرار لشكلة الأصلي
+            document.getElementById('progress-bar').style.width = "0%";
+            document.getElementById('main-submit-btn').innerText = "Submit Exam Now";
+            
+            // اختيار أسئلة جديدة عشوائياً
+            currentSubset = [...unitsQuestions]
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 20);
+
+            // تصفير الإجابات القديمة عشان الأسئلة تنزل فاضية
+            currentSubset.forEach(q => q.userAns = "");
+
+            renderUI();
+            window.scrollTo(0,0);
         }
-
-        window.onload = () => initExam(false);
+        function generateAnotherSet() {
+            // إخفاء المودال (المنيو)
+            document.getElementById('result-modal').classList.add('hidden');
+            // استدعاء دالة توليد الأسئلة اللي موجودة عندك فعلاً
+            generateSet();
+        }
     </script>
 </body>
 
