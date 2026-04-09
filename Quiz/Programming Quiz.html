@@ -222,7 +222,7 @@
         };
 
        function initExam() {
-            const unitNum = localStorage.getItem('unitNumber'); // ده الرقم اللي جاي من الصفحة الأولى (مثلاً 14)
+            const unitNum = localStorage.getItem('unitNumber');
             const lessonNum = localStorage.getItem('selectedLesson');
             
             if (!unitNum || !lessonNum) {
@@ -231,12 +231,10 @@
                 return;
             }
 
-            // --- الجزء الجديد: تحميل ملف الأسئلة ديناميكياً ---
             const script = document.createElement('script');
-            script.src = `./unit${unitNum}.js`; // هيتحول لـ ./unit14.js أو أي رقم تاني
+            script.src = `./unit${unitNum}.js`; 
             
             script.onload = function() {
-                // الكود ده مش هيشتغل غير لما الملف يتحمل فعلياً
                 try {
                     if (typeof allQuestionsData === 'undefined') {
                         throw new Error("Questions file loaded but data is missing.");
@@ -248,13 +246,28 @@
 
                     if (pool.length === 0) throw new Error("No questions found in this range.");
 
-                    const essayPool = pool.filter(q => q.type === 'essay').sort(() => 0.5 - Math.random());
-                    const objectivePool = pool.filter(q => q.type !== 'essay').sort(() => 0.5 - Math.random());
+                    const shuffle = (array) => array.sort(() => Math.random() - 0.5);
+
+                    const getUniqueQuestions = (type) => {
+                        const filtered = pool.filter(q => q.type === type);
+                        const uniqueMap = new Map();
+                        filtered.forEach(item => uniqueMap.set(item.q, item));
+                        return shuffle(Array.from(uniqueMap.values()));
+                    };
+
+                    const essayPool = getUniqueQuestions('essay');
+                    const objectivePool = pool.filter(q => q.type !== 'essay');
+                    
+                    const uniqueObjectiveMap = new Map();
+                    objectivePool.forEach(item => uniqueObjectiveMap.set(item.q, item));
+                    const uniqueObjectivePool = shuffle(Array.from(uniqueObjectiveMap.values()));
 
                     currentSubset = [
                         ...essayPool.slice(0, 14),
-                        ...objectivePool.slice(0, 6)
-                    ].sort(() => 0.5 - Math.random());
+                        ...uniqueObjectivePool.slice(0, 6)
+                    ];
+
+                    currentSubset = shuffle(currentSubset);
 
                     renderUI();
                     startTimer();
@@ -275,7 +288,7 @@
             document.getElementById('quiz-container').innerHTML = 
                 `<div class='text-center p-10 bg-red-50 rounded-2xl border-2 border-red-200'>
                     <p class='font-bold text-red-500'>⚠️ Error Loading Questions</p>
-                    <p class='text-sm text-gray-500'>Could not find file: unit${num}.js</p>
+                    <p class='text-sm text-gray-500'>Could not find file: unit${num}</p>
                 </div>`;
         }
 
@@ -416,7 +429,6 @@
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
-        // الحماية من تبديل التاب
         window.addEventListener('blur', () => {
             if (examFinished) return;
             tabSwitchCount++;
